@@ -1,0 +1,70 @@
+{% extends 'hod_template/base_template.html' %}
+{% block page_title %}
+Manage Subject
+{% endblock page_title %}
+{% block main_content %}
+
+<!--begin::App Content Header-->
+<!--end::App Content Header-->
+<!--begin::App Content-->
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+   <main id="main" class="main">
+
+    <div class="pagetitle">
+      
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+
+          <div class="card">
+            <div class="card-body">
+
+              <!-- Table with stripped rows -->
+              <table class="table datatable">
+                <thead>
+                <h6>Subject Details</h6>
+                  <tr>
+                    <th>ID</th>
+                    <th>Subject Name</th>
+                    <th>Course Name</th>
+                    <th>Course ID</th>
+                    <th>Staff Name</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for subject in subjects %}
+                  <tr>
+                    <td>{{ subject.id }}</td>
+                    <td>{{ subject.subject_name }}</td>
+                    <td>{{ subject.course_id.course_name}}</td>
+                    <td>{{ subject.staff_id.first_name}} {{ subject.staff_id.last_name}}</td>
+                    <td><a href="/edit_subject/{{ subject.admin.id }}" class="=btn btn-success">Edit</a></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+
+
+
+
+</div>
+    </div>
+<!--end::App Content-->
+{% endblock main_content %}

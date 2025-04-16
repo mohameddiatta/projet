@@ -1,0 +1,94 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GESTION ETUDIANT | Login Page</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AdminLTE CSS -->
+    <link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.min.css' %}">
+    
+    <!-- Custom CSS -->
+    <style>
+      .login-page {
+        background: #f4f6f9;
+      }
+      .login-logo {
+        font-size: 2.1rem;
+        font-weight: 300;
+        margin-bottom: 0.9rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  
+  <body class="hold-transition login-page">
+    <div class="login-box">
+      <!-- Logo -->
+      <div class="login-logo">
+        <a href="#"><b>GESTION</b>ETUDIANT</a>
+      </div>
+      
+      <!-- Card -->
+      <div class="card">
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">Connectez-vous pour commencer votre session</p>
+
+          <form action="/doLogin" method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              <input type="email" class="form-control" placeholder="Email" name="email" required>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-envelope"></span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="input-group mb-3">
+              <input type="password" class="form-control" placeholder="Mot de passe" name="password" required>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+              </div>
+            </div>
+          </form>
+          
+          <!-- Messages d'erreur -->
+          {% if messages %}
+          <div class="row mt-12">
+            <div class="col-12">
+              {% for message in messages %}
+                {% if message.tags == 'error' %}
+                  <div class="alert alert-danger">{{ message }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'adminlte/dist/js/adminlte.min.js' %}"></script>
+  </body>
+</html>
