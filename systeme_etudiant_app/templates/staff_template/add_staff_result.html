@@ -1,10 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'staff_template/base_template.html' %}
+
+{% block page_title %}
+Add Results
+{% endblock page_title %}
+{% block main_content %}
+ <section class="content">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <div class="container-flui">
+          <div class="row">
+            <div class="col-md-12">
+                <!--begin::Quick Example-->
+                <form action="{% url 'student_save_result' %}" method="post">
+                    {% csrf_token %}
+                <div class="card card-primary card-outline mb-4">
+                    <!--begin::Header-->
+                    <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                        <div class="card-title">Add Results</div>
+                    </div>
+                    <!--end::Header-->
+                    <!--begin::Form-->
+
+                        <!--begin::Body-->
+
+
+                            <div class="form-group">
+                               <label>Subject</label>
+                               <select class="form-control" name="subject" id="subject">
+                                 {% for subject in subjects %}
+                                 <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+                               {% endfor %}
+                               </select>
+                             </div>
+
+                            <div class="form-group">
+                                <label>Session Year</label>
+                               <select class="form-control" name="session_year" id="session_year">
+                                   {% for session_year in session_years %}
+                                   <option Value="{{ session_year.id }}">{{ session_year.session_start_year }} TO {{ session_year.session_end_year }}</option>
+
+                               {% endfor %}
+                               </select>
+                            </div>
+
+                            <div class="form-group">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        {% if message.tags == 'success' %}
+                                            <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                                        {% endif %}
+                                        {% if message.tags == 'error' %}
+                                            <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                        <!--end::Body-->
+                        <!--begin::Footer-->
+                        <div class="card-footer mt-4">
+                            <button type="submit" class="btn btn-primary btn-block" id="fetch_student">Fetch Student</button>
+                        </div>
+                    <div id="student_data" class="card-footer">
+
+                    </div>
+                        <!--end::Footer-->
+
+                </div>
+                    </form>
+                <!--end::Quick Example-->
+            </div>
+        </div>
+        </div>
+
+ </section>
+{% endblock main_content %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+    $("#fetch_student").click(function(e){
+        e.preventDefault();
+
+        var subject = $("#subject").val();
+        var session_year = $("#session_year").val();
+
+        $.ajax({
+            url: '{% url "get_students" %}',
+            type: 'POST',
+            data: {
+                subject: subject,
+                session_year: session_year,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            dataType: 'json'
+        })
+        .done(function(data){
+            if (!Array.isArray(data) || data.length === 0) {
+                $("#student_data").html("<div class='alert alert-warning'>Aucun étudiant trouvé</div>");
+                return;
+            }
+
+            var html = "<div class='form-group'>";
+            // 1. On ajoute le subject_id en caché pour que la vue student_save_result le reçoive
+            html += `<input type='hidden' name='subject_id' value='${subject}'>`;
+
+            html += "<label>Student List</label>";
+            // 2. On change le nom en 'student_id' pour correspondre à request.POST.get('student_id')
+            html += "<select name='student_id' class='form-control'>";
+
+            data.forEach(function(std) {
+                // Ici, vérifiez si 'std.id' est bien l'ID admin. Sinon utilisez std.admin_id
+                html += `<option value="${std.id}">${std.name} (ID: ${std.id})</option>`;
+            });
+
+            html += "</select></div>";
+
+            html += "<div class='form-group row mb-2'>";
+            html += "<div class='col-lg-6'><label>Assignment Marks:</label><input type='number' step='0.01' name='assignment_marks' class='form-control' required></div>";
+            html += "<div class='col-lg-6'><label>Exam Marks:</label><input type='number' step='0.01' name='exam_marks' class='form-control' required></div>";
+            html += "</div>";
+
+            html += "<button type='submit' class='btn btn-success btn-block'>Save Result Data</button>";
+
+            $("#student_data").html(html);
+        })
+        .fail(function(xhr){
+            alert("Erreur lors du chargement des étudiants");
+        });
+    });
+});
+</script>
+{% endblock custom_js %}
+
+
+
+
+
+
+
+

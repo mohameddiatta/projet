@@ -1,27 +1,260 @@
 {% extends 'student_template/base_template.html' %}
+{% load static %}
+{% load humanize %}
 
-{% block page_title %}Paiement Inscription{% endblock %}
+{% block page_title %}
+Paiement de l'inscription
+{% endblock %}
 
 {% block main_content %}
-<div class="container mt-4">
-    <h3>Paiement de l'inscription</h3>
-    <p>Inscription de : {{ inscription.students.admin.get_full_name }}</p>
-    <form method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="methode">Méthode de paiement</label>
-            <select class="form-control" id="methode" name="methode" required>
-                <option value="">-- Sélectionner une méthode --</option>
-                {% for code, label in methodes %}
-                <option value="{{ code }}">{{ label }}</option>
-                {% endfor %}
-            </select>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if messages %}
+                <div class="col-12 mb-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Informations de l'inscription -->
+                <div class="row mb-4">
+                    <!-- Détails académiques -->
+                    <div class="col-md-6">
+                        <div class="card card-info h-100">
+                            <div class="card-header">
+                                <h4><i class="fas fa-university"></i> Détails académiques</h4>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Étudiant :</strong> {{ inscription.students.admin.get_full_name }}</p>
+                                <p><strong>Filière :</strong> {{ inscription.filiere.get_Nom_filiere_display }}</p>
+                                <p><strong>Niveau :</strong> {{ inscription.niveau.nom_niveau }}</p>
+                                <p><strong>Statut du compte :</strong>
+                                    {% if inscription.students.status == 'approved' %}
+                                        <span class="badge badge-success">Approuvé</span>
+                                    {% elif inscription.students.status == 'pending' %}
+                                        <span class="badge" style="background-color: #e67e22 !important; color: white !important; padding: 5px 12px; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                                            <i class="fas fa-clock"></i> En attente
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Rejeté</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- État financier -->
+                    <div class="col-md-6">
+                        <div class="card card-warning h-100">
+                            <div class="card-header">
+                                <h4><i class="fas fa-coins"></i> État financier</h4>
+                            </div>
+                            <div class="card-body text-center">
+                                <h3 class="text-dark">{{ inscription.montant_total|intcomma }} FCFA</h3>
+                                <small class="text-muted">Total des frais</small>
+
+                                <div class="progress mt-3" style="height:20px; border-radius: 10px;">
+                                    {% widthratio montant_valide inscription.montant_total 100 as pourcentage %}
+                                    <div class="progress-bar bg-success progress-bar-striped" role="progressbar"
+                                         style="width: {{ pourcentage }}%"
+                                         aria-valuenow="{{ pourcentage }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ pourcentage|floatformat:1 }}%
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-6 border-right">
+                                        <small class="text-muted d-block">Déjà payé</small>
+                                        <strong class="text-success">{{ montant_valide|intcomma }} FCFA</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Reste à payer</small>
+                                        <strong class="text-danger">
+                                            {{ reste_a_payer|intcomma }} FCFA
+                                            {% if reste_a_payer > 0 %}
+                                                <i class="fas fa-exclamation-triangle ml-1" title="Paiement incomplet"></i>
+                                            {% endif %}
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <!-- Bouton pour effectuer un paiement -->
+                                {% if inscription.students.status == 'approved' and reste_a_payer > 0 %}
+                                <div class="mt-4">
+                                    <a href="{% url 'effectuer_paiement' inscription.id %}" class="btn btn-success btn-lg shadow">
+                                        <i class="fas fa-credit-card"></i> Effectuer un paiement
+                                    </a>
+                                </div>
+                                {% elif inscription.students.status != 'approved' %}
+                                <div class="mt-3">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-lock"></i>
+                                        Votre compte doit être approuvé pour effectuer un paiement
+                                    </div>
+                                </div>
+                                {% elif reste_a_payer <= 0 %}
+                                <div class="mt-3">
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-check-circle"></i>
+                                        Paiement complet ! Aucun montant à régler
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-success">
+                    <div class="card-header"><h4><i class="fas fa-credit-card"></i>Capturez l'historique votre transaction ici et envoyer-le comme  preuve</h4></div>
+                    <div class="card-body">
+
+                        {% if inscription.students.status != 'approved' %}
+                            <div class="alert alert-warning text-center py-4">
+                                <i class="fas fa-lock fa-3x mb-3"></i>
+                                <h5>Accès restreint au paiement</h5>
+                                <p>Votre compte étudiant doit être <strong>Approuvé</strong> par l'administration pour effectuer un paiement.<br>
+                                Statut actuel : <span class="badge badge-dark">{{ inscription.students.status|upper }}</span></p>
+                                <a href="{% url 'student_home' %}" class="btn btn-outline-dark btn-sm mt-2">Retour au tableau de bord</a>
+                            </div>
+
+                        {% elif reste_a_payer <= 0 %}
+                            <div class="alert alert-success text-center py-4">
+                                <i class="fas fa-check-circle fa-3x mb-3"></i>
+                                <h5>Félicitations !</h5>
+                                <p>Le paiement pour cette inscription est complet.</p>
+                                <a href="{% url 'mes_inscriptions' %}" class="btn btn-success">Voir mes inscriptions</a>
+                            </div>
+
+                        {% else %}
+                    <form method="POST" id="paiementForm" enctype="multipart/form-data"> {% csrf_token %}
+
+                    <div class="form-group mt-2">
+                        <label>Photo du reçu / Capture d'écran (Preuve) *</label>
+                        <div class="custom-file">
+                            <input type="file" name="recu" id="recu" class="custom-file-input" accept="image/*,.pdf" required>
+                            <label class="custom-file-label" for="recu">Choisir le fichier...</label>
+                        </div>
+                        <small class="text-danger"><i class="fas fa-file-upload"></i> Obligatoire pour la validation.</small>
+                    </div>
+
+
+
+                            <div class="custom-control custom-checkbox mt-3">
+                                <input type="checkbox" class="custom-control-input" id="confirmation" required>
+                                <label class="custom-control-label" for="confirmation">
+                                    Je certifie avoir réellement effectué ce transfert de fonds.
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-success btn-lg btn-block mt-4 shadow">
+                                <i class="fas fa-paper-plane"></i> Envoyer la preuve de paiement
+                            </button>
+                        </form>
+                        </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Historique des paiements -->
+                        {% if paiements %}
+                        <div class="card card-secondary shadow-sm">
+                        <div class="card-header border-0">
+                            <h3 class="card-title">
+                                <i class="fas fa-history mr-2"></i> Historique des versements
+                            </h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped mb-0 text-nowrap">
+                                    <thead class="bg-light text-muted">
+                            <tr>
+                                <th class="border-top-0">Date</th>
+                                <th class="border-top-0">Méthode</th>
+                                <th class="border-top-0">Montant</th>
+                                <th class="border-top-0">Transaction</th>
+                                <th class="border-top-0">Statut</th>
+                                <th class="border-top-0 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for paiement in paiements %}
+                            <tr>
+                                <td class="align-middle">{{ paiement.date_paiement|date:"d/m/Y" }}</td>
+                                <td class="align-middle">
+                                    <span class="text-capitalize">{{ paiement.get_methode_display }}</span>
+                                </td>
+                                <td class="align-middle">
+                                    <strong class="text-dark">{{ paiement.montant|intcomma }} FCFA</strong>
+                                </td>
+                                <td class="align-middle">
+                                    <code class="text-primary font-weight-bold">{{ paiement.transaction_id }}</code>
+                                </td>
+                                <td class="align-middle">
+                                    {% if paiement.statut == 'valide' %}
+                                         <span class="badge badge-success px-3" style="border-radius: 50px; background-color: #28a745; color: white;">
+                                    <i class="fas fa-check-circle mr-1"></i> Validé
+                                </span>
+                                    {% else %}
+                                         <span class="badge" style="background-color: #e67e22; color: white; padding: 5px 10px;">
+                                        <i class="fas fa-clock mr-1"></i> En attente
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle text-center">
+                                    {% if paiement.statut == 'valide' %}
+                                        <a href="{% url 'generer_recu_pdf' paiement.id %}" class="btn btn-sm btn-danger shadow-sm">
+                                            <i class="fas fa-file-pdf"></i> Reçu PDF
+                                        </a>
+                                    {% else %}
+                                        <small class="text-muted font-italic">En cours de vérification</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <p class="text-muted mb-0">Aucun historique de paiement disponible.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="montant">Montant (FCFA)</label>
-            <input type="number" step="0.01" class="form-control" name="montant" id="montant" required>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x mb-3"></i>
+            <h5>Aucun paiement effectué</h5>
+            <p>Vous n'avez pas encore effectué de paiement pour cette inscription.</p>
         </div>
-        <button type="submit" class="btn btn-success">Payer</button>
-    </form>
-</div>
+        {% endif %}
+
+            <!-- Bouton retour -->
+           <div class="text-center mt-4">
+            <a href="{% url 'mes_inscriptions' %}" class="btn btn-outline-dark">
+                <i class="fas fa-arrow-left"></i> Retour à mes inscriptions
+            </a>
+            </div>
+        </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
+{% block custom_js %}
+<script>
+    // Affiche le nom du fichier sélectionné dans l'input custom-file
+    $(".custom-file-input").on("change", function() {
+      var fileName = $(this).val().split("\\").pop();
+      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+</script>
+{% endblock custom_js %}

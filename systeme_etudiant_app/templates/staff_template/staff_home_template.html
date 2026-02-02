@@ -1,4 +1,4 @@
-{% extends 'hod_template/base_template.html' %}
+{% extends 'staff_template/base_template.html' %}
 {% load static %}
 {% block page_title %}
 Home
@@ -23,8 +23,8 @@ Home
                 <!--begin::Small Box Widget 1-->
                 <div class="small-box text-bg-primary">
                   <div class="inner">
-                    <h3>150</h3>
-                    <p>New Orders</p>
+                    <h3>{{ students_count }}</h3>
+                    <p>Students Under me</p>
                   </div>
                   <svg
                     class="small-box-icon"
@@ -38,10 +38,10 @@ Home
                     ></path>
                   </svg>
                   <a
-                    href="#"
+                    href="{% url 'staff_take_attendance' %}"
                     class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
                   >
-                    More info <i class="bi bi-link-45deg"></i>
+                    More info <i class="bi bi-arrow-right-circle"></i>
                   </a>
                 </div>
                 <!--end::Small Box Widget 1-->
@@ -51,8 +51,8 @@ Home
                 <!--begin::Small Box Widget 2-->
                 <div class="small-box text-bg-success">
                   <div class="inner">
-                    <h3>53<sup class="fs-5">%</sup></h3>
-                    <p>Bounce Rate</p>
+                    <h3>{{ attendance_count }}<sup class="fs-5">%</sup></h3>
+                    <p>Total Attendances Taken</p>
                   </div>
                   <svg
                     class="small-box-icon"
@@ -66,10 +66,10 @@ Home
                     ></path>
                   </svg>
                   <a
-                    href="#"
+                    href="{% url 'staff_take_attendance' %}"
                     class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
                   >
-                    More info <i class="bi bi-link-45deg"></i>
+                    More info <i class="bi bi-arrow-right-circle"></i>
                   </a>
                 </div>
                 <!--end::Small Box Widget 2-->
@@ -79,8 +79,8 @@ Home
                 <!--begin::Small Box Widget 3-->
                 <div class="small-box text-bg-warning">
                   <div class="inner">
-                    <h3>44</h3>
-                    <p>User Registrations</p>
+                    <h3>{{ leave_count }}</h3>
+                    <p>Total Leaves Taken</p>
                   </div>
                   <svg
                     class="small-box-icon"
@@ -94,10 +94,10 @@ Home
                     ></path>
                   </svg>
                   <a
-                    href="#"
+                    href="{% url 'staff_apply_leave' %}"
                     class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover"
                   >
-                    More info <i class="bi bi-link-45deg"></i>
+                    More info <i class="bi bi-arrow-right-circle"></i>
                   </a>
                 </div>
                 <!--end::Small Box Widget 3-->
@@ -107,8 +107,8 @@ Home
                 <!--begin::Small Box Widget 4-->
                 <div class="small-box text-bg-danger">
                   <div class="inner">
-                    <h3>65</h3>
-                    <p>Unique Visitors</p>
+                    <h3>{{ subject_count }}</h3>
+                    <p>Total Subjects</p>
                   </div>
                   <svg
                     class="small-box-icon"
@@ -129,10 +129,10 @@ Home
                     ></path>
                   </svg>
                   <a
-                    href="#"
+                    href="{% url 'staff_take_attendance' %}"
                     class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
                   >
-                    More info <i class="bi bi-link-45deg"></i>
+                    &nbsp; <i class="bi bi-arrow-right-circle"></i>
                   </a>
                 </div>
                 <!--end::Small Box Widget 4-->
@@ -140,301 +140,279 @@ Home
               <!--end::Col-->
             </div>
             <!--end::Row-->
-            <!--begin::Row-->
             <div class="row">
-              <!-- Start col -->
-              <div class="col-lg-7 connectedSortable">
-                <div class="card mb-4">
-                  <div class="card-header"><h3 class="card-title">Sales Value</h3></div>
-                  <div class="card-body"><div id="revenue-chart"></div></div>
-                </div>
-                <!-- /.card -->
-                <!-- DIRECT CHAT -->
-                <div class="card direct-chat direct-chat-primary mb-4">
-                  <div class="card-header">
-                    <h3 class="card-title">Direct Chat</h3>
+              <div class="col-lg-6">
+                <div class="card card-danger">
+                 <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                    <h3 class="card-title">Attendance Vs Leave Chart</h3>
                     <div class="card-tools">
-                      <span title="3 New Messages" class="badge text-bg-primary"> 3 </span>
-                      <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
-                        <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-                        <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
                       </button>
-                      <button
-                        type="button"
-                        class="btn btn-tool"
-                        title="Contacts"
-                        data-lte-toggle="chat-pane"
-                      >
-                        <i class="bi bi-chat-text-fill"></i>
-                      </button>
-                      <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
-                        <i class="bi bi-x-lg"></i>
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
                       </button>
                     </div>
                   </div>
-                  <!-- /.card-header -->
                   <div class="card-body">
-                    <!-- Conversations are loaded here -->
-                    <div class="direct-chat-messages">
-                      <!-- Message. Default to the start -->
-                      <div class="direct-chat-msg">
-                        <div class="direct-chat-infos clearfix">
-                          <span class="direct-chat-name float-start"> Alexander Pierce </span>
-                          <span class="direct-chat-timestamp float-end"> 23 Jan 2:00 pm </span>
-                        </div>
-                        <!-- /.direct-chat-infos -->
-                        <img
-                          class="direct-chat-img"
-                          src="{% static 'dist/assets/img/user1-128x128.jpg' %}"
-                          alt="message user image"
-                        />
-                        <!-- /.direct-chat-img -->
-                        <div class="direct-chat-text">
-                          Is this template really for free? That's unbelievable!
-                        </div>
-                        <!-- /.direct-chat-text -->
-                      </div>
-                      <!-- /.direct-chat-msg -->
-                      <!-- Message to the end -->
-                      <div class="direct-chat-msg end">
-                        <div class="direct-chat-infos clearfix">
-                          <span class="direct-chat-name float-end"> Sarah Bullock </span>
-                          <span class="direct-chat-timestamp float-start"> 23 Jan 2:05 pm </span>
-                        </div>
-                        <!-- /.direct-chat-infos -->
-                        <img
-                          class="direct-chat-img"
-                          src="{% static 'dist/assets/img/user3-128x128.jpg' %}"
-                          alt="message user image"
-                        />
-                        <!-- /.direct-chat-img -->
-                        <div class="direct-chat-text">You better believe it!</div>
-                        <!-- /.direct-chat-text -->
-                      </div>
-                      <!-- /.direct-chat-msg -->
-                      <!-- Message. Default to the start -->
-                      <div class="direct-chat-msg">
-                        <div class="direct-chat-infos clearfix">
-                          <span class="direct-chat-name float-start"> Alexander Pierce </span>
-                          <span class="direct-chat-timestamp float-end"> 23 Jan 5:37 pm </span>
-                        </div>
-                        <!-- /.direct-chat-infos -->
-                        <img
-                          class="direct-chat-img"
-                          src="{% static 'dist/assets/img/user1-128x128.jpg' %}"
-                          alt="message user image"
-                        />
-                        <!-- /.direct-chat-img -->
-                        <div class="direct-chat-text">
-                          Working with AdminLTE on a great new app! Wana join?
-                        </div>
-                        <!-- /.direct-chat-text -->
-                      </div>
-                      <!-- /.direct-chat-msg -->
-                      <!-- Message to the end -->
-                      <div class="direct-chat-msg end">
-                        <div class="direct-chat-infos clearfix">
-                          <span class="direct-chat-name float-end"> Sarah Bullock </span>
-                          <span class="direct-chat-timestamp float-start"> 23 Jan 6:10 pm </span>
-                        </div>
-                        <!-- /.direct-chat-infos -->
-                        <img
-                          class="direct-chat-img"
-                          src="{% static 'dist/assets/img/user3-128x128.jpg' %}"
-                          alt="message user image"
-                        />
-                        <!-- /.direct-chat-img -->
-                        <div class="direct-chat-text">I would love to.</div>
-                        <!-- /.direct-chat-text -->
-                      </div>
-                      <!-- /.direct-chat-msg -->
-                    </div>
-                    <!-- /.direct-chat-messages-->
-                    <!-- Contacts are loaded here -->
-                    <div class="direct-chat-contacts">
-                      <ul class="contacts-list">
-                        <li>
-                          <a href="#">
-                            <img
-                              class="contacts-list-img"
-                              src="{% static 'dist/assets/img/user1-128x128.jpg' %}"
-                              alt="User Avatar"
-                            />
-                            <div class="contacts-list-info">
-                              <span class="contacts-list-name">
-                                Count Dracula
-                                <small class="contacts-list-date float-end"> 2/28/2023 </small>
-                              </span>
-                              <span class="contacts-list-msg"> How have you been? I was... </span>
-                            </div>
-                            <!-- /.contacts-list-info -->
-                          </a>
-                        </li>
-                        <!-- End Contact Item -->
-                        <li>
-                          <a href="#">
-                            <img
-                              class="contacts-list-img"
-                              src="{% static 'dist/assets/img/user7-128x128.jpg' %}"
-                              alt="User Avatar"
-                            />
-                            <div class="contacts-list-info">
-                              <span class="contacts-list-name">
-                                Sarah Doe
-                                <small class="contacts-list-date float-end"> 2/23/2023 </small>
-                              </span>
-                              <span class="contacts-list-msg"> I will be waiting for... </span>
-                            </div>
-                            <!-- /.contacts-list-info -->
-                          </a>
-                        </li>
-                        <!-- End Contact Item -->
-                        <li>
-                          <a href="#">
-                            <img
-                              class="contacts-list-img"
-                              src="{% static 'dist/assets/img/user3-128x128.jpg' %}"
-                              alt="User Avatar"
-                            />
-                            <div class="contacts-list-info">
-                              <span class="contacts-list-name">
-                                Nadia Jolie
-                                <small class="contacts-list-date float-end"> 2/20/2023 </small>
-                              </span>
-                              <span class="contacts-list-msg"> I'll call you back at... </span>
-                            </div>
-                            <!-- /.contacts-list-info -->
-                          </a>
-                        </li>
-                        <!-- End Contact Item -->
-                        <li>
-                          <a href="#">
-                            <img
-                              class="contacts-list-img"
-                              src="{% static 'dist/assets/img/user5-128x128.jpg' %}"
-                              alt="User Avatar"
-                            />
-                            <div class="contacts-list-info">
-                              <span class="contacts-list-name">
-                                Nora S. Vans
-                                <small class="contacts-list-date float-end"> 2/10/2023 </small>
-                              </span>
-                              <span class="contacts-list-msg"> Where is your new... </span>
-                            </div>
-                            <!-- /.contacts-list-info -->
-                          </a>
-                        </li>
-                        <!-- End Contact Item -->
-                        <li>
-                          <a href="#">
-                            <img
-                              class="contacts-list-img"
-                              src="{% static 'dist/assets/img/user6-128x128.jpg' %}"
-                              alt="User Avatar"
-                            />
-                            <div class="contacts-list-info">
-                              <span class="contacts-list-name">
-                                John K.
-                                <small class="contacts-list-date float-end"> 1/27/2023 </small>
-                              </span>
-                              <span class="contacts-list-msg"> Can I take a look at... </span>
-                            </div>
-                            <!-- /.contacts-list-info -->
-                          </a>
-                        </li>
-                        <!-- End Contact Item -->
-                        <li>
-                          <a href="#">
-                            <img
-                              class="contacts-list-img"
-                              src="{% static 'dist/assets/img/user8-128x128.jpg' %}"
-                              alt="User Avatar"
-                            />
-                            <div class="contacts-list-info">
-                              <span class="contacts-list-name">
-                                Kenneth M.
-                                <small class="contacts-list-date float-end"> 1/4/2023 </small>
-                              </span>
-                              <span class="contacts-list-msg"> Never mind I found... </span>
-                            </div>
-                            <!-- /.contacts-list-info -->
-                          </a>
-                        </li>
-                        <!-- End Contact Item -->
-                      </ul>
-                      <!-- /.contacts-list -->
-                    </div>
-                    <!-- /.direct-chat-pane -->
+                    <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                   </div>
-                  <!-- /.card-body -->
-                  <div class="card-footer">
-                    <form action="#" method="post">
-                      <div class="input-group">
-                        <input
-                          type="text"
-                          name="message"
-                          placeholder="Type Message ..."
-                          class="form-control"
-                        />
-                        <span class="input-group-append">
-                          <button type="button" class="btn btn-primary">Send</button>
-                        </span>
-                      </div>
-                    </form>
-                  </div>
-                  <!-- /.card-footer-->
                 </div>
-                <!-- /.direct-chat -->
               </div>
-              <!-- /.Start col -->
-              <!-- Start col -->
-              <div class="col-lg-5 connectedSortable">
-                <div class="card text-white bg-primary bg-gradient border-primary mb-4">
-                  <div class="card-header border-0">
-                    <h3 class="card-title">Sales Value</h3>
+              <div class="col-lg-6">
+                <div class="card card-success">
+                  <div class="card-header">
+                    <h3 class="card-title">Attendance Subject</h3>
                     <div class="card-tools">
-                      <button
-                        type="button"
-                        class="btn btn-primary btn-sm"
-                        data-lte-toggle="card-collapse"
-                      >
-                        <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-                        <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                      </button>
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="card-body"><div id="world-map" style="height: 220px"></div></div>
-                  <div class="card-footer border-0">
-                    <!--begin::Row-->
-                    <div class="row">
-                      <div class="col-4 text-center">
-                        <div id="sparkline-1" class="text-dark"></div>
-                        <div class="text-white">Visitors</div>
-                      </div>
-                      <div class="col-4 text-center">
-                        <div id="sparkline-2" class="text-dark"></div>
-                        <div class="text-white">Online</div>
-                      </div>
-                      <div class="col-4 text-center">
-                        <div id="sparkline-3" class="text-dark"></div>
-                        <div class="text-white">Sales</div>
-                      </div>
-                    </div>
-                    <!--end::Row-->
+                  <div class="card-body">
+                    <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                   </div>
                 </div>
               </div>
-              <!-- /.Start col -->
             </div>
-            <!-- /.row (main row) -->
           </div>
-          <!--end::Container-->
+          <div class="row mt-4">
+            <div class="col-lo-12">
+               <div class="card card-info">
+                  <div class="card-header">
+                    <h3 class="card-title">Student Attendance Data</h3>
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                      </button>
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+       <!--end::Row-->
         </div>
+    </div>
+   <!-- /.Start col -->
+<!-- /.row (main row) -->
+
+<!--end::Container-->
+
   <!--end::App Content-->
- </main>
+  </main>
     <!--end::Container-->
 {% endblock main_content %}
+{% block custom_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function(){
+    // Pie Chart
+    var pieData = {
+        labels: [
+            'Present',
+            'Absent'
+        ],
+        datasets: [
+            {
+                data: [{{attendance_count}},{{leave_count}}],
+                backgroundColor: ['#00a65a', '#f56954'],
+            }
+        ]
+    };
 
+    var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+    var pieOptions = {
+        maintainAspectRatio: false,
+        responsive: true,
+    };
+
+    var pieChart = new Chart(pieChartCanvas, {
+        type: 'pie',
+        data: pieData,
+        options: pieOptions
+    });
+
+    // Bar Chart 1 - Attendance by Subject
+    var attendance_list = {{attendance_list|safe}};
+    var subject_list = {{subject_list|safe}};
+
+    var areaChartData = {
+        labels: subject_list,
+        datasets: [
+            {
+                label: 'Attendance Subject Chart',
+                backgroundColor: 'rgba(60,141,188,0.9)',
+                borderColor: 'rgba(60,141,188,0.8)',
+                pointRadius: false,
+                pointColor: '#3b8bba',
+                pointStrokeColor: 'rgba(60,141,188,1)',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(220,220,220,1)',
+                data: attendance_list  // Supprimé les crochets []
+            }
+        ]
+    };
+
+    var barChartCanvas = $('#barChart').get(0).getContext('2d');
+    var barChartData = jQuery.extend(true, {}, areaChartData);
+
+    var barChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        datasetFill: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    };
+
+    var barChart = new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barChartData,
+        options: barChartOptions
+    });
+
+    // Bar Chart 2 - Student Attendance
+    var student_list = {{ student_list|safe }};
+    var present_list = {{ present_list|safe }};
+    var absent_list = {{ absent_list|safe }};
+
+    var areaChartData2 = {
+        labels: student_list,
+        datasets: [
+            {
+                label: 'Student Attendance Present',
+                backgroundColor: 'rgba(60,141,188,0.9)',
+                borderColor: 'rgba(60,141,188,0.8)',
+                pointRadius: false,
+                pointColor: '#3b8bba',
+                pointStrokeColor: 'rgba(60,141,188,1)',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(220,220,220,1)',
+                data: present_list  // Supprimé les crochets []
+            },
+            {
+                label: 'Student Attendance Absent',
+                backgroundColor: 'rgba(210, 77, 87, 0.9)',
+                borderColor: 'rgba(210, 77, 87, 0.8)',
+                pointRadius: false,
+                pointColor: '#d24d57',
+                pointStrokeColor: 'rgba(210, 77, 87, 1)',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(220,220,220,1)',
+                data: absent_list  // Supprimé les crochets []
+            }
+        ]
+    };
+
+    var barChartCanvas2 = $('#barChart2').get(0).getContext('2d');
+    var barChartData2 = jQuery.extend(true, {}, areaChartData2);
+
+    var barChartOptions2 = {
+        responsive: true,
+        maintainAspectRatio: false,
+        datasetFill: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    };
+
+    var barChart2 = new Chart(barChartCanvas2, {
+        type: 'bar',
+        data: barChartData2,  // Corrigé: barChartData2 au lieu de barChartData
+        options: barChartOptions2  // Corrigé: barChartOptions2 au lieu de barChartOptions
+    });
+});
+</script>
+
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AizasDY0TCAvWllTDiNAUKApoGzXpS2yNOO9HMg",
+        authDomain: "systeme-gestion-etudiant.firebaseapp.com",
+        projectId: "systeme-gestion-etudiant",
+        storageBucket: "systeme-gestion-etudiant.appspot.com",
+        messagingSenderId: "32960000402",
+        appId: "1:32960000402:web:4ea32f6c7e0683bc5aabc6",
+        measurementId: "G-4NZNDSKVTQ"
+    };
+
+    // Initialisation Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const messaging = firebase.messaging();
+
+    // Permission + Token
+    function InitializeFirebaseMessaging() {
+        messaging.requestPermission()
+            .then(function () {
+                console.log("Permission accordée");
+                return messaging.getToken();
+            })
+            .then(function (token) {
+                console.log("FCM Token :", token);
+                sendToServer(token);
+            })
+            .catch(function (err) {
+                console.log("Permission refusée", err);
+            });
+    }
+
+    // Réception message en premier plan
+    messaging.onMessage(function (payload) {
+        console.log("Message reçu :", payload);
+
+        if (Notification.permission === "granted") {
+            new Notification(payload.notification.title, {
+                body: payload.notification.body,
+                icon: payload.notification.icon
+            });
+        }
+    });
+
+    // Rafraîchissement du token
+    messaging.onTokenRefresh(function () {
+        messaging.getToken()
+            .then(function (newToken) {
+                console.log("Nouveau token :", newToken);
+                sendToServer(newToken);
+            });
+    });
+
+    // Envoi vers Django
+    function sendToServer(token) {
+        $.ajax({
+            url: "{% url 'staff_fcmtoken_save' %}",
+            type: "POST",
+            data: {
+                token: token,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function () {
+                console.log("Token sauvegardé");
+            }
+        });
+    }
+
+    InitializeFirebaseMessaging();
+</script>
+
+
+{% endblock custom_js %}
 
 
 

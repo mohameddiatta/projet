@@ -1,90 +1,147 @@
 {% extends 'hod_template/base_template.html' %}
-{% block page_title %}
-Liste des étudiants inscrits
-{% endblock page_title %}
+{% load static %}
+
 {% block main_content %}
-
-<!--begin::App Content Header-->
-<!--end::App Content Header-->
-<!--begin::App Content-->
 <div class="app-content">
-    <!--begin::Container-->
     <div class="container-fluid">
-   <main id="main" class="main">
-
-    <div class="pagetitle">
-
-    </div><!-- End Page Title -->
-
-    <section class="section">
-      <div class="row">
-        <div class="col-lg-12">
-
-          <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
-            <div class="card-body">
-
-              <!-- Table with stripped rows -->
-       <div class="table-responsive">
-  <table class="table datatable" style="width:100%; table-layout:auto;">
-                <thead>
-                <h5>Student Details</h5>
-                  <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Gender</th>
-                    <th>Email</th>
-                    <th>Address</th>
-                    <th>Ine</th>
-                    <th>Telephone</th>
-                    <th>Montant</th>
-                    <th>Date paiement</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {% for student in students %}
-                  <tr>
-                    <td>{{ student.admin.id }}</td>
-                    <td>{{ student.admin.first_name }}</td>
-                    <td>{{ student.admin.last_name }}</td>
-                    <td>{{ student.admin.email }}</td>
-                    <td>{{ student.address }}</td>
-                    <td>{{ student.admin.ine }}</td>
-                    <td>{{ student.admin.telephone }}</td>
-                    <td>{{ student.montant }}</td>
-                    <td><img src="{{ student.profile_pic }}" style="width:50px; height:50px;" /></td>
-                    <td>{{ student.admin.date_paiement|date:"d/m/Y H:i" }}</td>
-                    <td><a href="{% url 'edit_student' student_id=student.admin.id %}" class="btn btn-success btn-sm">Edit</a></td>
-
-
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-
-              <!-- End Table with stripped rows -->
-
+        <main id="main" class="main">
+            <div class="pagetitle">
+                <h1>📋 Liste des étudiants validés</h1>
+                <nav>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                        <li class="breadcrumb-item active">Inscriptions Finalisées</li>
+                    </ol>
+                </nav>
             </div>
-          </div>
 
-        </div>
-      </div>
+            <section class="section">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-user-check"></i> Étudiants en règle (Paiement Validé)
+                            <span class="badge bg-light text-dark ms-2">{{ students|length }}</span>
+                        </h5>
+                        <button onclick="window.print();" class="btn btn-light btn-sm">
+                            <i class="fas fa-print"></i> Imprimer
+                        </button>
+                    </div>
 
+                    <div class="card-body">
+                        <div class="mb-4 mt-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un nom, INE ou session...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="studentsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="30%">Nom & Prénoms</th>
+                                        <th width="20%">INE</th>
+                                        <th width="20%">Statut Paiement</th>
+                                        <th width="15%">Session</th>
+                                        <th width="10%" class="text-center">Détail</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for student in students %}
+                                    <tr>
+                                        <td class="fw-bold text-muted">{{ forloop.counter }}</td>
+
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="symbol symbol-40px me-3">
+                                                    <span class="badge bg-soft-primary text-primary rounded-circle p-2">
+                                                        {{ student.last_name|slice:":1" }}{{ student.first_name|slice:":1" }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-uppercase fw-bold d-block">{{ student.last_name }}</span>
+                                                    <span class="text-capitalize">{{ student.first_name }}</span>
+                                                    <br><small class="text-muted">{{ student.email }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <code class="text-primary fw-bold">{{ student.ine|default:"-" }}</code>
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-success px-3 py-2">
+                                                <i class="fas fa-check-circle me-1"></i> Validée
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="text-muted small">
+                                                {% if student.session_year_id %}
+                                                    {{ student.session_year_id.session_start_year }} - {{ student.session_year_id.session_end_year }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-center">
+                                            {% if student.inscription_id %}
+                                                <a href="{% url 'detail_inscription' student.inscription_id %}"
+                                                   class="btn btn-sm btn-info text-white shadow-sm">
+                                                   <i class="fas fa-eye"></i> Voir
+                                                </a>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Incomplet</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fas fa-user-slash fa-3x mb-3"></i>
+                                                <h5>Aucun étudiant validé pour le moment</h5>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    </section>
-
-  </main><!-- End #main -->
-
-
-
-
-
 </div>
-    </div>
-<!--end::App Content-->
-{% endblock main_content %}
 
-td a {
-    display: inline-block;
-    margin-right: 5px;
-}
+<style>
+    .bg-soft-primary { background-color: #e1f0ff; }
+    .table th {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #5f6d7d;
+    }
+    @media print {
+        .btn, .input-group, .pagetitle nav, .main-sidebar { display: none !important; }
+        .card { border: none !important; }
+    }
+</style>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filter = this.value.toUpperCase();
+        let rows = document.querySelector("#studentsTable tbody").rows;
+
+        for (let i = 0; i < rows.length; i++) {
+            let text = rows[i].textContent.toUpperCase();
+            rows[i].style.display = text.includes(filter) ? "" : "none";
+        }
+    });
+</script>
+{% endblock main_content %}

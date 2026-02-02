@@ -1,10 +1,242 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'staff_template/base_template.html' %}
+
+{% block page_title %}
+ View Update Attendance
+{% endblock page_title %}
+{% block main_content %}
+ <section class="content">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <div class="container-flui">
+          <div class="row">
+            <div class="col-md-12">
+                <!--begin::Quick Example-->
+                <div class="card card-primary card-outline mb-4">
+                    <!--begin::Header-->
+                     <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                        <div class="card-title">View Update Attendance</div>
+                    </div>
+                    <!--end::Header-->
+                    <!--begin::Form-->
+
+                        <!--begin::Body-->
+
+
+                            <div class="form-group">
+                               <label>Subject</label>
+                               <select class="form-control" name="subject" id="subject">
+                                 {% for subject in subjects %}
+                                 <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+                               {% endfor %}
+                               </select>
+                             </div>
+
+                            <div class="form-group">
+                               <label>Session Year</label>
+                               <select class="form-control" name="session_year_id" id="session_year_id">
+                                 {% for session_year in session_year_id %}
+                                 <option value="{{ session_year.id }}">{{ session_year.session_start_year }} TO {{ session_year.session_end_year }}</option>
+                               {% endfor %}
+                               </select>
+                             </div>
+
+                            <div class="form-group mt-2">
+                            <button type="button" class="btn btn-primary btn-block" id="fetch_attendance">Fetch Attendance Data</button>
+                          </div>
+
+
+                          <div class="form-group mt-2" id="attendance_block">
+                               <label>Attendance Date</label>
+                               <select class="form-control" name="attendance_date" id="attendance_date">
+
+                               </select>
+                          </div>
+                             <div class="form-group mt-2">
+                                 <div class="alert alert-danger" id="error_attendance" style="display:none;">
+
+                                 </div>
+
+                                <div class="form-group mt-2" id="fetch_student_block" style="display:none">
+                                   <button type="submit" class="btn btn-primary btn-block" id="fetch_student">Fetch Student Data</button>
+                             </div>
+
+
+
+                        <!--end::Body-->
+                        <!--begin::Footer-->
+
+                    <div id="student_data" class="card-footer">
+
+                    </div>
+                        <!--end::Footer-->
+
+                </div>
+                <!--end::Quick Example-->
+            </div>
+        </div>
+        </div>
+        </div>
+
+ </section>
+{% endblock main_content %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+    // --- 1. GESTIONNAIRE DE SAUVEGARDE (Pour le bouton généré dynamiquement) ---
+    // Ce gestionnaire est utilisé pour ENREGISTRER la présence MISE À JOUR.
+
+
+    $(document).on("click", "#save_attendance", function(){
+
+        $(this).attr("disabled", "disabled");
+        $(this).text("Saving Attendance Data...");
+
+        var student_data = $("input[name='student_data[]']").map(function(){
+            // Détermine le statut (Présent = 1, Absent = 0)
+            if($(this).is(":checked")){
+               return {"id":$(this).val(), "status": 1};
+            }
+            else{
+                return {"id":$(this).val(), "status": 0};
+            }
+        }).get();
+
+        // L'ID de l'enregistrement de présence est stocké dans la balise <select id="attendance_date">
+        var attendance_date_id = $("#attendance_date").val();
+        var subject_id = $("#subject").val();
+        var session_year_id = $("#session_year_id").val(); // Correction de l'ID ici si jamais utilisé
+
+        console.log("Données Étudiant à Sauvegarder :", student_data);
+        student_data = JSON.stringify(student_data);
+
+        $.ajax({
+            url: '{% url "save_Updateattendance_data" %}',
+            type: 'POST',
+            data: {
+                student_ids: student_data,
+                // ATTENTION : Nous envoyons l'ID de l'enregistrement de présence, pas seulement la date
+                attendance_date: attendance_date_id,
+                subject_id: subject_id,
+                session_year_id: session_year_id
+            },
+        })
+        .done(function(response){
+            if(response.trim() === "OK"){
+                alert("Attendance Updated successfully!");
+            }
+            // Mieux gérer les erreurs "ERR: message d'erreur" renvoyées par Django (si vous avez implémenté la suggestion du bloc transaction)
+            else if (response.trim().startsWith("ERR:")){
+                alert("Error in Saving Data: " + response.substring(4));
+            }
+            else{
+                alert("Error in Saving Data");
+            }
+            location.reload();
+        })
+        .fail(function(xhr, status, error){
+           alert("AJAX Error in Saving Attendance: " + error);
+        });
+    });
+
+    // --- 2. GESTIONNAIRE POUR RÉCUPÉRER LES DATES DE PRÉSENCE ---
+    $("#fetch_attendance").click(function(){
+        var subject = $("#subject").val();
+        var session_year = $("#session_year_id").val(); // Utilisation de l'ID correct
+
+        $.ajax({
+            url: '{% url "get_attendance_dates" %}',
+            type: 'POST',
+            data: {subject: subject, session_year_id: session_year},
+        })
+        .done(function(response){
+            var json_data = JSON.parse(response);
+            console.log(json_data);
+
+            if(json_data.length > 0){
+                var html_data = "";
+                for(key in json_data){
+                    // La valeur est l'ID de l'enregistrement Attendance
+                    html_data += "<option value=\"" + json_data[key]['id'] + "\">" + json_data[key]["attendance_date"] + "</option>";
+                }
+                $("#error_attendance").hide();
+                $("#attendance_block").show();
+                $("#fetch_student_block").show();
+                $("#attendance_date").html(html_data);
+            } else {
+                $("#error_attendance").html("No Attendance Data Found for this subject and session.");
+                $("#error_attendance").show();
+                $("#attendance_block").hide();
+                $("#fetch_student_block").hide();
+                $("#attendance_date").html("");
+            }
+        })
+        .fail(function(){
+             alert("Error in Fetching Attendance Dates.");
+             $("#error_attendance").html("Communication Error with Server.");
+             $("#error_attendance").show();
+             $("#attendance_block").hide();
+             $("#fetch_student_block").hide();
+        });
+    });
+
+    // --- 3. GESTIONNAIRE POUR RÉCUPÉRER LES ÉTUDIANTS D'UNE DATE (le bon bloc) ---
+$("#fetch_student").click(function(){
+    var attendance_date_id = $("#attendance_date").val();
+
+    $.ajax({
+        url: '{% url "get_attendance_student" %}',
+        type: 'POST',
+        data: {attendance_date: attendance_date_id},
+    })
+    .done(function(response){
+        try {
+            var json_data = JSON.parse(response);
+        } catch (e) {
+            alert("Error: Server response was not valid JSON.");
+            return;
+        }
+
+        console.log("Données Étudiant récupérées :", json_data);
+
+        if (json_data.error) {
+            alert("Error in Fetching Student Data: " + json_data.error);
+            $("#student_data").html("<p class='text-danger'>" + json_data.error + "</p>");
+            return;
+        }
+
+        var div_data = "<div class='form-group'><label>Student Attendance :</label></div><div class='form-group'><div class='row'>";
+
+        // ✅ BOUCLE CORRIGÉE ICI
+        for (key in json_data) {
+            var checked = json_data[key]['status'] == 1 ? "checked" : "";
+            var status_text = json_data[key]['status'] == 1 ? "[Présent]" : "[Absent]";
+
+            div_data += `
+                <div class="col-lg-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="student_data[]" class="form-check-input" value="${json_data[key]['id']}" ${checked}>
+                        <label class="form-check-label">${json_data[key]['name']} ${status_text}</label>
+                    </div>
+                </div>
+            `;
+        }
+
+        div_data += "</div></div>";
+        div_data += "<div class='form-group'>";
+        div_data += "<button id='save_attendance' class='btn btn-success btn-block' type='button'>Save Attendance Data</button>";
+
+        $("#student_data").html(div_data);
+    })
+    .fail(function(xhr, status, error){
+        alert("AJAX Error in Fetching Student Data: " + error);
+    });
+});
+
+});
+</script>
+{% endblock custom_js %}
+
+
+
+
+
+

@@ -1,9 +1,9 @@
 {% load static %}
-<!doctype html>
+
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Systeme | Dashboard</title>
+  <title>Student Management System | Staff Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AdminLTE Dashboard basé sur Bootstrap 5" />
 
@@ -37,23 +37,27 @@
 </head>
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-  <div class="app-wrapper">
-    <!-- Header -->
-    <nav class="app-header navbar navbar-expand bg-body">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <!-- 🔧 Le bouton menu toggle ne redirige plus vers /logout_user -->
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-              <i class="bi bi-list"></i>
-            </a>
-          </li>
-        </ul>
-    
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <!--begin::Header-->
+      <nav class="app-header navbar navbar-expand bg-body">
+        <!--begin::Container-->
+        <div class="container-fluid">
+          <!--begin::Start Navbar Links-->
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <i class="bi bi-list"></i>
+              </a>
+            </li>
+
+          </ul>
+
+
         <h3 class="m-0 text-truncate" style="max-width: 70vw;">
-          Système de Gestion Étudiant - HOD
+          Student Management System | Staff Panel
         </h3>
-    
+
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
             <!-- ✅ Seul ce lien déconnecte -->
@@ -62,10 +66,10 @@
         </ul>
       </div>
     </nav>
-    
+
 
     <!-- Sidebar -->
-    {% include 'hod_template/sidebar_template.html' with user=user id=id %}
+    {% include 'staff_template/sidebar_template.html' with user=user id=id %}
 
     <!-- Main content -->
     <div class="app-main">
@@ -85,7 +89,7 @@
         </div>
       </section>
 
-    
+
 
       <!-- Page content -->
       <section class="app-content">
@@ -97,7 +101,7 @@
     </div>
 
     <!-- Footer -->
-    {% include 'hod_template/footer.html' %}
+    {% include 'staff_template/footer.html' %}
   </div>
 
   <!-- Scripts -->

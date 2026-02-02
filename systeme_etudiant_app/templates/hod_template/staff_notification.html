@@ -1,10 +1,384 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'hod_template/base_template.html' %}
+{% block page_title %}
+Manage Staff
+{% endblock page_title %}
+{% block main_content %}
+
+<!--begin::App Content Header-->
+<!--end::App Content Header-->
+<!--begin::App Content-->
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+   <main id="main" class="main">
+
+    <div class="pagetitle">
+      
+    </div><!-- End Page Title -->
+
+   <section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="card">
+                <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                    <h3 class="card-title mb-0">Staff</h3>
+
+                    <div class="card-tools">
+                        <form method="GET">
+                            <div class="input-group input-group-sm" style="width: 200px;">
+                                <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-default">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+         
+
+              <!-- Table with stripped rows -->
+               <div class="table-responsive">
+               <table class="table datatable" style="width:100%; table-layout:auto;">
+                        <thead>
+                        <h5>Staff Details</h5>
+                          <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for staff in staffs %}
+                          <tr>
+                            <td>{{ staff.admin.id }}</td>
+                            <td>{{ staff.admin.first_name }}</td>
+                            <td>{{ staff.admin.last_name }}</td>
+                            <td>{{ staff.admin.username }}</td>
+                            <td>{{ staff.admin.email }}</td>
+                            <td><a href="#" class="btn btn-success btn-sm show_notification" data-toggle="modal" data-target="">Send Notification</a></td>
+
+        
+        
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+
+        </div>
+
+
+ </section>
+
+    <!-- Modal -->
+      <div id="myModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content--><div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Send Notification to <span id="name_span"></span></h4>
+                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <input type="text" name="message" class="form-control" id="message_not">
+                      <input type="hidden" name="staff_id" class="form-control" id="staff_id">
+                  </div>
+                  <div class="form-group mt-3">
+                      <button class="btn btn-info btn-block send_notification_btn" type="button">Send Notification</button>
+                  </div>
+              </div>
+              <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+ </main>
+
+
+
+</div>
+</div>
+<!--end::App Content-->
+{% endblock main_content %}
+
+td a {
+    display: inline-block;
+    margin-right: 5px;
+}
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    console.log("=== INITIALISATION PAGE ===");
+
+    // 1. FONCTION AMÉLIORÉE POUR LE TOKEN CSRF
+    function getCSRFToken() {
+        console.log("Recherche du token CSRF...");
+
+        // Essayer plusieurs méthodes
+        var token = null;
+
+        // Méthode 1: Champ hidden
+        token = $('input[name="csrfmiddlewaretoken"]').val();
+        console.log("1. Champ hidden:", token ? "✓ Trouvé" : "✗ Non trouvé");
+
+        // Méthode 2: Meta tag
+        if (!token) {
+            token = $('meta[name="csrf-token"]').attr('content');
+            console.log("2. Meta tag:", token ? "✓ Trouvé" : "✗ Non trouvé");
+        }
+
+        // Méthode 3: Extraire du cookie
+        if (!token) {
+            var name = 'csrftoken';
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        token = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            console.log("3. Cookie:", token ? "✓ Trouvé" : "✗ Non trouvé");
+        }
+
+        // Méthode 4: Vérifier si {% csrf_token %} est dans le formulaire
+        if (!token) {
+            token = $('form input[name="csrfmiddlewaretoken"]').val();
+            console.log("4. Formulaire:", token ? "✓ Trouvé" : "✗ Non trouvé");
+        }
+
+        if (!token) {
+            console.error("ERREUR CRITIQUE: Aucun token CSRF trouvé!");
+            alert("ERREUR: Token de sécurité manquant. Rechargez la page.");
+        } else {
+            console.log("Token CSRF trouvé (premiers 10 caractères):", token.substring(0, 10) + "...");
+        }
+
+        return token;
+    }
+
+    // Initialiser le token au chargement
+    var csrftoken = getCSRFToken();
+    console.log("Token final:", csrftoken ? "PRÉSENT" : "ABSENT");
+
+    // 2. DÉBOGAGE DU TABLEAU
+    console.log("\n=== DÉBOGAGE TABLEAU ===");
+    $("table tbody tr").each(function(index) {
+        var $row = $(this);
+        var rowData = {
+            index: index,
+            id: $row.find("td:eq(0)").text().trim(),
+            firstName: $row.find("td:eq(1)").text().trim(),
+            lastName: $row.find("td:eq(2)").text().trim(),
+            username: $row.find("td:eq(3)").text().trim(),
+            email: $row.find("td:eq(4)").text().trim()
+        };
+        console.log(`Ligne ${index}:`, rowData);
+    });
+
+    // 3. GESTION DU CLIC SUR "SEND NOTIFICATION"
+    $(".show_notification").click(function(){
+        console.log("\n=== CLIC SUR BOUTON NOTIFICATION ===");
+
+        var $row = $(this).closest("tr");
+        var $cells = $row.find("td");
+
+        // Récupérer toutes les données
+        var data = {
+            admin_id: $cells.eq(0).text().trim(),      // Colonne 0: admin.id
+            first_name: $cells.eq(1).text().trim(),    // Colonne 1: first_name
+            last_name: $cells.eq(2).text().trim(),     // Colonne 2: last_name
+            username: $cells.eq(3).text().trim(),      // Colonne 3: username
+            email: $cells.eq(4).text().trim()          // Colonne 4: email
+        };
+
+        console.log("Données récupérées:", data);
+
+        // Validation
+        if (!data.admin_id) {
+            alert("ERREUR: ID vide dans le tableau");
+            console.error("ID vide:", data);
+            return;
+        }
+
+        if (!/^\d+$/.test(data.admin_id)) {
+            alert("ERREUR: ID doit être un nombre. Reçu: " + data.admin_id);
+            console.error("ID non numérique:", data.admin_id);
+            return;
+        }
+
+        // Mettre à jour le modal
+        $("#staff_id").val(data.admin_id);
+        $("#name_span").text(data.first_name + " " + data.last_name + " (" + data.username + ")");
+
+        console.log("Modal mis à jour - ID:", data.admin_id);
+
+        // Ouvrir le modal
+        $("#myModal").modal("show");
+    });
+
+    // 4. GESTION DU CLIC SUR LE BOUTON D'ENVOI
+    $(".send_notification_btn").click(function() {
+        console.log("\n=== TENTATIVE D'ENVOI DE NOTIFICATION ===");
+
+        // Récupérer les valeurs
+        var id = $("#staff_id").val();
+        var message = $("#message_not").val().trim();
+
+        console.log("Valeurs du modal:");
+        console.log("  ID:", id, "(type:", typeof id + ")");
+        console.log("  Message:", message);
+
+        // VALIDATION RENFORCÉE
+        if (!id) {
+            alert("ERREUR: Aucun ID spécifié");
+            console.error("ID manquant");
+            return;
+        }
+
+        // Vérifier que c'est un nombre
+        if (typeof id !== 'string' || !/^\d+$/.test(id)) {
+            alert("ERREUR: ID invalide. Doit être un nombre.\nReçu: '" + id + "' (type: " + typeof id + ")");
+            console.error("ID invalide:", id, "type:", typeof id);
+            return;
+        }
+
+        if (!message) {
+            alert("Veuillez saisir un message");
+            $("#message_not").focus();
+            return;
+        }
+
+        // Vérifier le token CSRF
+        if (!csrftoken) {
+            alert("ERREUR: Token de sécurité manquant. Rechargez la page.");
+            console.error("CSRF token manquant");
+            return;
+        }
+
+        // Désactiver le bouton
+        var $btn = $(this);
+        var originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Envoi...');
+
+        console.log("Envoi AJAX en cours...");
+        console.log("URL:", '{% url "send_staff_notification" %}');
+        console.log("Données:", {id: id, message: message});
+        console.log("Token CSRF (début):", csrftoken ? csrftoken.substring(0, 10) + "..." : "NULL");
+
+        // 5. ENVOI AJAX SIMPLIFIÉ ET ROBUSTE
+        $.ajax({
+            url: '{% url "send_staff_notification" %}',
+            type: 'POST',
+            data: {
+                'id': id,
+                'message': message
+            },
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            timeout: 10000, // 10 secondes timeout
+            success: function(response, status, xhr) {
+                console.log("SUCCÈS AJAX:");
+                console.log("  Statut:", xhr.status);
+                console.log("  Réponse:", response);
+                console.log("  Type réponse:", typeof response);
+
+                // Votre vue retourne du texte simple
+                if (response === "True") {
+                    alert("✅ Notification envoyée avec succès");
+                    $("#myModal").modal("hide");
+                    $("#message_not").val("");
+                }
+                else if (response && (response.includes("sauvegardée") || response.includes("AVERTISSEMENT"))) {
+                    alert("ℹ️ " + response);
+                    $("#myModal").modal("hide");
+                    $("#message_not").val("");
+                }
+                else if (response) {
+                    alert("⚠️ " + response);
+                }
+                else {
+                    alert("❌ Réponse vide du serveur");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("ERREUR AJAX:");
+                console.error("  Statut:", xhr.status);
+                console.error("  Statut texte:", xhr.statusText);
+                console.error("  Réponse:", xhr.responseText);
+                console.error("  Erreur:", error);
+
+                var errorMessage = "Erreur lors de l'envoi";
+
+                if (xhr.status === 0) {
+                    errorMessage = "Erreur réseau - Vérifiez votre connexion";
+                }
+                else if (xhr.status === 400) {
+                    errorMessage = "Requête incorrecte (400): " + xhr.responseText;
+                }
+                else if (xhr.status === 403) {
+                    errorMessage = "Erreur de sécurité (CSRF): " + xhr.responseText;
+                }
+                else if (xhr.status === 404) {
+                    errorMessage = "URL non trouvée (404)";
+                }
+                else if (xhr.status === 500) {
+                    errorMessage = "Erreur serveur (500): " + xhr.responseText;
+                }
+                else {
+                    errorMessage = "Erreur " + xhr.status + ": " + xhr.responseText;
+                }
+
+                alert("❌ " + errorMessage);
+            },
+            complete: function() {
+                console.log("Requête AJAX terminée");
+                $btn.prop('disabled', false).html(originalHtml);
+            }
+        });
+    });
+
+    // 6. AJOUTER UN TOKEN CSRF MANQUANT SI NÉCESSAIRE
+    function ensureCSRFToken() {
+        if (!$('input[name="csrfmiddlewaretoken"]').length) {
+            console.log("Ajout d'un champ CSRF manuellement...");
+            $('body').append('<input type="hidden" name="csrfmiddlewaretoken" id="csrf_manual" value="{{ csrf_token }}">');
+
+            // Mettre à jour notre token
+            csrftoken = $('#csrf_manual').val();
+            console.log("Token CSRF ajouté manuellement:", csrftoken ? "✓" : "✗");
+        }
+    }
+
+    // Exécuter cette fonction
+    ensureCSRFToken();
+
+    // 7. BOUTON DE TEST
+    $('#myModal').on('shown.bs.modal', function() {
+        console.log("Modal ouvert");
+        console.log("Valeur staff_id:", $("#staff_id").val());
+        console.log("Valeur name_span:", $("#name_span").text());
+    });
+});
+</script>
+{% endblock custom_js %}

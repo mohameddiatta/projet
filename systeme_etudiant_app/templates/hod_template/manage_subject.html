@@ -1,6 +1,6 @@
 {% extends 'hod_template/base_template.html' %}
 {% block page_title %}
-Manage Subject
+
 {% endblock page_title %}
 {% block main_content %}
 
@@ -10,6 +10,10 @@ Manage Subject
 <div class="app-content">
     <!--begin::Container-->
     <div class="container-fluid">
+      <div class="pagetitle">
+                <h3> Manage Subject</h3>
+
+            </div>
    <main id="main" class="main">
 
     <div class="pagetitle">
@@ -20,8 +24,8 @@ Manage Subject
       <div class="row">
         <div class="col-lg-12">
 
-          <div class="card">
-            <div class="card-body">
+          <div class="card card-primary card-outline mb-4">
+        <div class="card-body" >
 
               <!-- Table with stripped rows -->
               <table class="table datatable">
@@ -38,13 +42,13 @@ Manage Subject
                 </thead>
                 <tbody>
                 {% for subject in subjects %}
-                  <tr>
-                    <td>{{ subject.id }}</td>
-                    <td>{{ subject.subject_name }}</td>
-                    <td>{{ subject.course_id.course_name}}</td>
-                    <td>{{ subject.staff_id.first_name}} {{ subject.staff_id.last_name}}</td>
-                    <td><a href="/edit_subject/{{ subject.admin.id }}" class="=btn btn-success">Edit</a></td>
-                  </tr>
+                <tr>
+                  <td>{{ subject.id }}</td>
+                  <td>{{ subject.subject_name }}</td>
+                  <td>{{ subject.course_id.course_name }}</td>
+                  <td>{{ subject.course_id.id }}</td>
+                  <td>{{ subject.staff_id.first_name }} {{ subject.staff_id.last_name }}</td>
+                  <td><a href="/edit_subject/{{ subject.id }}" class="btn btn-success">Edit</a></td></tr>
                 {% endfor %}
                 </tbody>
               </table>

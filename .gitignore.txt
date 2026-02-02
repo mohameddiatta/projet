@@ -1,0 +1,16 @@
+# Environnements Python
+mon_env/
+
+# Fichiers compilés Python
+*.pyc
+__pycache__/
+
+# Fichiers sensibles / secrets
+systeme-gestion-etudiant-firebase-adminsdk-*.json
+# autres fichiers JSON sensibles
+*.json
+# fichiers de base de données locales
+*.db
+
+# Dossiers médias
+media/

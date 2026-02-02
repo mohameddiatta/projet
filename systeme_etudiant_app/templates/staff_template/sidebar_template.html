@@ -1,26 +1,44 @@
 {% load static %}
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-  <!--begin::Sidebar Brand-->
-  <div class="sidebar-brand">
-    <!--begin::Brand Link-->
-    <a href="./index.html" class="brand-link">
-      <!--begin::Brand Image-->
-      <img
-        src="{% static 'dist/assets/img/AdminLTELogo.png' %}"
-        alt="AdminLTE Logo"
-        class="brand-image opacity-75 shadow"
-      >
-      <!--end::Brand Image-->
-      <!--begin::Brand Text-->
-      <span class="brand-text fw-light">AdminLTE 4</span>
-      <!--end::Brand Text-->
+
+<aside class="app-sidebar shadow"
+       style="background-color: #1e40af;"
+       data-bs-theme="dark">
+
+<!--begin::Sidebar Brand-->
+  <div class="sidebar-brand" style="color: white; font-size: 1rem; margin-left: -140px;">
+    <a href="{% url 'staff_home' %}" class="brand-link">
+      <div class="d-flex align-items-center mb-2">
+        <img
+          src="{% static 'dist/assets/img/staff.jpg' %}"
+          alt="AdminLTE Logo"
+          class="brand-image opacity-75 shadow me-2"
+          style="opacity: .8"
+        >
+        <span class="fw-light" style="color: white; font-size: 1rem; ">Staff</span>
+      </div>
     </a>
-    <!--end::Brand Link-->
   </div>
-  <!--end::Sidebar Brand-->
+
   <!--begin::Sidebar Wrapper-->
   <div class="sidebar-wrapper">
-    <nav class="mt-2">
+    <!-- User Panel -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex border-bottom">
+      <div class="image">
+        <img src="{% static 'dist/assets/img/Bamalang.jpg' %}"
+             alt="User Image"
+             class="rounded-circle elevation-2 me-2"
+             style="width: 30px; height: 30px; object-fit: cover;margin-left: 15px;">
+      </div>
+      <div class="info">
+        <a href="{% url 'profile_staff' %}" class="d-block text-white text-decoration-none">
+          {{ user.username }}
+        </a>
+        <span class="fw-light" style="color: #c2c7d0; font-size: 0.8rem;">Admin</span>
+      </div>
+    </div>
+  <!--begin::Sidebar Wrapper-->
+  <div class="sidebar-wrapper">
+    <nav class="mt-2" style="color: white; font-size: 1rem; margin-left: -10px;" >
       <!--begin::Sidebar Menu-->
       <ul
         class="nav sidebar-menu flex-column"
@@ -29,172 +47,105 @@
         data-accordion="false"
       >
         <li class="nav-item menu-open">
-          {% url 'add_staff' as add_staff %}
-          <a href="{{ add_staff }}" class="nav-link {% if request.path == add_staff %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
+          {% url 'staff_home' as staff_home %}
+          <a href="{{ staff_home }}" class="nav-link {% if request.path == staff_home %} active {% endif %}">
+            <i class="nav-icon bi bi-house-door me-2"></i>
             <p>
-              Add Staff
+              Home
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
-          
+
           </a>
         </li>
-        <li class="nav-item menu-open">
-          {% url 'manage_staff' as manage_staff %}
-          {% url 'edit_staff' staff_id=id as edit_staff %}
-          <a href="{% url 'manage_staff' %}" class="nav-link {% if request.path == edit_staff %} active {% endif %} {% if request.path == manage_staff %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
+
+         <li class="nav-item menu-open">
+          {% url 'staff_take_attendance' as staff_take_attendance %}
+          <a href="{{ staff_take_attendance }}" class="nav-link {% if request.path == staff_take_attendance %} active {% endif %}">
+             <i class="nav-icon bi bi-calendar-plus me-2"></i>
             <p>
-              Manage Staff
+              Take Attendance
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
-          
+
           </a>
         </li>
-        <li class="nav-item menu-open">
-          {% url 'add_student' as add_student %}
-          <a href="{% url 'add_student' %}" class="nav-link {% if request.path == add_student %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
+
+
+         <li class="nav-item menu-open">
+          {% url 'staff_update_attendance' as staff_update_attendance %}
+          <a href="{{ staff_update_attendance }}" class="nav-link {% if request.path == staff_update_attendance %} active {% endif %}">
+             <i class="nav-icon bi bi-calendar-check me-2"></i>
             <p>
-              Add Student
+              View Update Attendance
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          {% url 'manage_student' as manage_student %}
-          {% url 'edit_student' student_id=id as edit_student %}
-          <a href="{% url 'manage_student' %}" class="nav-link {% if request.path == manage_student %} active {% endif %} {% if request.path == edit_student %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Manage Student
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          {% url 'add_courses' as add_courses %}
-          <a href="{% url 'add_courses' %}" class="nav-link {% if request.path == add_courses %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Add Course
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          {% url 'manage_courses' as manage_courses %}
-          {% url 'edit_courses' courses_id=id as edit_courses %}
-          <a href="{% url 'manage_courses' %}" class="nav-link {% if request.path == manage_courses %} active {% endif %} {% if request.path == edit_courses %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Manage Course
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          {% url 'add_subject' as add_subject %}
-          <a href="{% url 'add_subject' %}" class="nav-link {% if request.path == add_subject %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Add Subject
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          {% url 'manage_subject' as manage_subject %}
-          {% url 'edit_subject' subject_id=id as edit_subject %}
-          <a href="{% url 'manage_subject' %}" class="nav-link {% if request.path == manage_subject %} active {% endif %} {% if request.path == edit_subject %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Manage Subject
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          <a href="/add_document" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Document 
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          <a href="/add_inscrire" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              S'inscrire 
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          <a href="/add_views_attendance" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Views Attendance 
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
+
           </a>
         </li>
 
         <li class="nav-item menu-open">
-          <a href="/add_feedback" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
+          {% url 'staff_apply_leave' as staff_apply_leave %}
+          <a href="{{ staff_apply_leave }}" class="nav-link {% if request.path == staff_apply_leave %} active {% endif %}">
+             <i class="nav-icon bi bi-calendar-x me-2"></i>
             <p>
-              Student Feedback 
+             Apply Leave
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          <a href="/add_staff_feedback" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-               Staff Feedback
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          <a href="/add_student_leave" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Student Leave
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
-          </a>
-        </li>
-        <li class="nav-item menu-open">
-          <a href="/add_staff_leave" class="nav-link active">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>
-              Staff Leave
-              <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-          
+
           </a>
         </li>
 
+        <li class="nav-item menu-open">
+          {% url 'staff_feedback' as staff_feedback %}
+          <a href="{{ staff_feedback }}" class="nav-link {% if request.path == staff_feedback %} active {% endif %}">
+            <i class="nav-icon bi bi-chat-left-text me-2"></i>
+            <p>
+              FeedBack
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'staff_add_result' as staff_add_result %}
+          <a href="{{ staff_add_result }}" class="nav-link {% if request.path == staff_add_result %} active {% endif %}">
+            <i class="nav-icon bi bi-journal-plus me-2"></i>
+            <p>
+              Staff Add Result
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+
+        <li class="nav-item menu-open">
+          {% url 'staff_all_notification' as staff_all_notification %}
+          <a href="{{ staff_all_notification }}" class="nav-link {% if request.path == staff_all_notification %} active {% endif %}">
+             <i class="nav-icon bi bi-bell me-2"></i>
+            <p>
+              Notification
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+
+         <li class="nav-item menu-open">
+          {% url 'edit_student_result' as edit_student_result %}
+          <a href="{{ edit_student_result }}" class="nav-link {% if request.path == edit_student_result %} active {% endif %}">
+            <i class="nav-icon bi bi-pencil-square me-2"></i>
+            <p>
+              Add Result
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
       </ul>
       <!--end::Sidebar Menu-->
     </nav>
   </div>
+  </div>
+
   <!--end::Sidebar Wrapper-->
 </aside>

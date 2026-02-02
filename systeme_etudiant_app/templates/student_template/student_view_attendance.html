@@ -12,45 +12,41 @@ Views Attendance Aata
                 <!--begin::Quick Example-->
                 <div class="card card-primary card-outline mb-4">
                     <!--begin::Header-->
-                    <div class="card-header">
+                     <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
                         <div class="card-title">Views Attendance</div>
                     </div>
                     <!--end::Header-->
-                    <!--begin::Form-->
-
-                        <!--begin::Body-->
-
-
+                           <form action="{% url 'student_view_attendance_post' %}" method="post">
+                               {% csrf_token %}
                             <div class="form-group">
                                <label>Subject</label>
                                <select class="form-control" name="subject" id="subject">
                                  {% for subject in subjects %}
                                  <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
-                               {% endfor %}
+                                {% endfor %}
                                </select>
                              </div>
                             <div class="row">
                             <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>Start Data</label>
+                              <div class="form-group">
+                            <label>Start Date</label>
                                <input type="date" name="start_date" class="form-control" placeholder="Start Date">
-                               {% endfor %}
-                               </select>
-                            </div>
-                            </div>
-                            </div>
 
-                            <div class="row">
+
+
+                         </div>
+                          </div>
+
+
                             <div class="col-lg-6">
-                            <div class="form-group">
+                              <div class="form-group">
                                 <label>End Date</label>
                                 <input type="date" name="end_date" class="form-control" placeholder="End Date">
 
-                               {% endfor %}
-                               </select>
+
                             </div>
-                            </div>
-                            </div>
+                          </div>
+                      </div>
 
 
 
@@ -79,100 +75,16 @@ Views Attendance Aata
                     </div>
                         <!--end::Footer-->
 
-                </div>
+          </form>
+
                 <!--end::Quick Example-->
             </div>
         </div>
-        </div>
 
+  </div>
+  </div>
  </section>
 {% endblock main_content %}
-{% block custom_js %}
-<script>
-$(document).ready(function(){
-    $("#fetch_student").click(function(){
-        var subject = $("#subject").val();
-        var session_year = $("#session_year").val();
-
-        $.ajax({
-            url: '{% url "get_students" %}',
-            type: 'POST',
-            data: {subject: subject, session_year: session_year},
-        })
-        .done(function(response){
-            var json_data = JSON.parse(response);
-            console.log(json_data);
-            var div_data = "<div class='form-group'><label>Attendance Data :</label><input type='date' name='attendance_date' id='attendance_data' class='form-control'></div><div class='form-group'><div class='row'>";
-
-            for(key in json_data)
-            {
-                div_data += "<div class='col-lg-3'><div class='form-check'>" +
-                            "<div class='form-check'><input type='checkbox' checked='checked' name='student_data[]' " +
-                            "class='form-check-input' value='" + json_data[key]['id'] + "'>" +
-                            "<label class='form-check-label'>" + json_data[key]['name'] + "</label>" +
-                            "</div></div> </div>";
-            }
-            div_data+="</div></div>";
-            div_data+="<div class='form-group'>";
-            div_data+="<button id='save_attendance' class='btn btn-success btn-block' type='checkbox'>Save Attendance Data</button>";
-
-            $("#student_data").html(div_data);
-        })
-        .fail(function(){
-            alert("Error in Fetching Student");
-        });
-
-
-
-
-        $(document).on("click","#save_attendance",function(){
-
-            $(this).attr("disabled", "disabled");
-            $(this).text("Saving Attendance Data...");
-            var student_data=$("input[name='student_data[]']").map(function(){
-                    if($(this).is(":checked")){
-                       return {"id":$(this).val(),"status":1};
-                    }
-                    else{
-                        return {"id":$(this).val(),"status":0};
-
-                    }
-            }).get();
-            var attendance_date=$("#attendance_date").val();
-            var subject_id=$("#subject").val();
-            var session_year_id=$("#session_year").val();
-            console.log(student_data)
-            student_data=JSON.stringify(student_data)
-
-
-
-            $.ajax({
-                    url: '{% url "save_attendance_data" %}',
-                    type: 'POST',
-                    data: {student_ids:student_data,attendance_date:attendance_date,subject_id:subject_id,session_year_id:session_year_id},
-               })
-               .done(function(response){
-                    if(response == "OK"){
-                        alert("Attendance Saved successfully!");
-                    }
-                    else{
-                        alert("Error in Saving Data");
-
-                    }
-                    location.reload();
-
-               })
-               .fail(function(){
-                   alert("Error in Fetching Student");
-              });
-
-
-
-        })
-    });
-});
-</script>
-{% endblock custom_js %}
 
 
 

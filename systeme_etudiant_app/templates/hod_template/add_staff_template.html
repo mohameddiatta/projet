@@ -1,6 +1,6 @@
 {% extends 'hod_template/base_template.html' %}
 {% block page_title %}
-Add Staff
+
 {% endblock page_title %}
 {% block main_content %}
 
@@ -8,26 +8,31 @@ Add Staff
 <!--end::App Content Header-->
 <!--begin::App Content-->
 <div class="app-content">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!--begin::Container-->
     <div class="container-fluid">
+        <div class="pagetitle">
+                <h3> Add staff</h3>
+
+            </div>
+
         <div class="row">
             <div class="col-md-12">
                 <!--begin::Quick Example-->
                 <div class="card card-primary card-outline mb-4">
                     <!--begin::Header-->
-                    <div class="card-header">
+                    <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
                         <div class="card-title">Add Staff</div>
                     </div>
                     <!--end::Header-->
                     <!--begin::Form-->
                     <form action="/add_staff_save" method="post">
                         {% csrf_token %}
-                        {{ form.as_p }}
                         <!--begin::Body-->
                         <div class="card-body">
                             <div class="mb-3">
                                 <label>Email address</label>
-                                <input type="email" class="form-control" name="email" placeholder="Enter email" required>
+                                <input type="email" class="form-control" name="email" placeholder="Enter email" id="id_email" autocomplete="off" required>
                                 <div id="emailHelp" class="form-text"></div>
                             </div>
                             <div class="mb-3">
@@ -44,7 +49,7 @@ Add Staff
                             </div>
                             <div class="mb-3">
                                 <label>Username</label>
-                                <input type="text" class="form-control" name="username"  placeholder="Username" required>
+                                <input type="text" class="form-control" name="username"  placeholder="Username" id="id_username" autocomplete="off" required>
                             </div>
                             <div class="mb-3">
                                 <label>Address</label>
@@ -66,7 +71,7 @@ Add Staff
                         <!--end::Body-->
                         <!--begin::Footer-->
                         <div class="card-footer">
-                            <button type="submit" class="btn btn-primary btn-block">Add Staff</button>
+                            <button type="submit" class="btn btn-success bg-gradient">Add Staff</button>
                         </div>
                         <!--end::Footer-->
                     </form>
@@ -79,3 +84,90 @@ Add Staff
 </div>
 <!--end::App Content-->
 {% endblock main_content %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+
+    // --- Vérification Email ---
+    $("#id_email").keyup(function(){
+        var email = $(this).val();
+
+        // 1. Supprimer tous les anciens messages (pour éviter l'accumulation)
+        $(".email_error, .email_success").remove();
+
+        if(email !== ""){
+            // Champ non vide : Envoyer la requête AJAX
+            $.ajax({
+                url: "{% url 'user_email_check' %}",
+                type: "POST",
+                data: {
+                    email: email,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response){
+                    console.log(response);
+
+                    if (response === "True") {
+                        // Email déjà pris
+                        $("<span class='text-danger email_error'>Email Not Available</span>")
+                            .insertAfter("#id_email");
+                    } else {
+                        // Email disponible
+                        $("<span class='text-success email_success'>Email Available</span>")
+                            .insertAfter("#id_email");
+                    }
+                },
+                error: function(){
+                    console.log("Email check failed");
+                    $("<span class='text-warning email_error'>Check failed. Try again.</span>")
+                        .insertAfter("#id_email");
+                }
+            }); // <-- Fermeture de $.ajax
+        }
+        // NOTE: La suppression des messages est déjà faite au début de la fonction (Ligne 11)
+        // donc le bloc 'else' n'est plus nécessaire ici.
+    }); // <-- Fermeture de keyup email
+
+    // --- Séparateur ---
+
+    // --- Vérification Username ---
+    $("#id_username").keyup(function(){
+        var username = $(this).val();
+
+        // 1. Supprimer tous les anciens messages
+        $(".username_error, .username_success").remove();
+
+        if(username !== ""){
+            // Champ non vide : Envoyer la requête AJAX
+            $.ajax({
+                url: "{% url 'username_check' %}",
+                type: "POST",
+                data: {
+                    username: username,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response){
+                    console.log(response);
+
+                    if (response === "True") {
+                        // Username déjà pris
+                        $("<span class='text-danger username_error'>Username Not Available</span>")
+                            .insertAfter("#id_username");
+                    } else {
+                        // Username disponible
+                        $("<span class='text-success username_success'>Username Available</span>")
+                            .insertAfter("#id_username");
+                    }
+                },
+                error: function(){
+                    console.log("Username check failed");
+                    $("<span class='text-warning username_error'>Check failed. Try again.</span>")
+                        .insertAfter("#id_username");
+                }
+            }); // <-- Fermeture de $.ajax
+        }
+        // NOTE: La suppression des messages est déjà faite au début de la fonction (Ligne 46)
+    }); // <-- Fermeture de keyup username
+});
+</script>
+{% endblock custom_js %}

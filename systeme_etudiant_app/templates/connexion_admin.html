@@ -1,10 +1,10 @@
 {% load static %}
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title> Gestion Etudiants | Login Page</title>
+    <title>Gestion Étudiants | Création Compte Admin</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -31,13 +31,21 @@
             <a href="#"><b>Gestion Étudiants</b></a>
         </div>
 
-         <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                <h4 class="mb-0">Création Compte Administrateur</h4>
+            </div>
             <div class="card-body login-card-body">
 
-                <p class="login-box-msg">Se connecter au système</p>
+                <p class="login-box-msg">Créer un nouveau compte administrateur</p>
 
-                <form action="{% url 'do_login' %}" method="POST">
-                  {% csrf_token %}
+                <form action="{% url 'do_creer_compte_admin' %}" method="POST">
+                    {% csrf_token %}
+
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Nom d'utilisateur" name="username" required>
+                        <div class="input-group-text"><span class="bi bi-person-badge"></span></div>
+                    </div>
 
                     <div class="input-group mb-3">
                         <input type="email" class="form-control" placeholder="Email" name="email" required>
@@ -45,28 +53,47 @@
                     </div>
 
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" placeholder="Password" name="password" required>
+                        <input type="password" class="form-control" placeholder="Mot de passe" name="password" required>
                         <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
                     </div>
+
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Confirmer le mot de passe" name="confirm_password" required>
+                        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+                    </div>
+
                     <div class="mb-3">
                         <div class="g-recaptcha" data-sitekey="6LfTFCMsAAAAAHxH2V_7-SlBzKqm06UgjhxMcAXF"></div>
-
                     </div>
 
                     <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-success bg-gradient">Se connecter</button>
+                        <button type="submit" class="btn btn-success bg-gradient">
+                            <i class="bi bi-shield-check"></i> Créer le compte admin
+                        </button>
                     </div>
                 </form>
 
                 <div class="text-center mb-3">
-                    <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+                    <p>
+                        <a href="{% url 'login' %}">Déjà un compte ? Se connecter</a><br>
+                        <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+                    </p>
                 </div>
 
                 {% if messages %}
                 <div class="mt-3">
                     {% for message in messages %}
                     {% if message.tags == 'error' %}
-                    <div class="alert alert-danger">{{ message }}</div>
+                    <div class="alert alert-danger alert-dismissible fade show" style="margin-top:10px">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                    <div class="alert alert-success alert-dismissible fade show" style="margin-top:10px">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                     {% endif %}
                     {% endfor %}
                 </div>
@@ -83,7 +110,26 @@
     <script src="{% static 'dist/js/adminlte.js' %}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.querySelector('input[name="password"]');
+            const confirmPassword = document.querySelector('input[name="confirm_password"]');
 
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('Les mots de passe ne correspondent pas !');
+                confirmPassword.focus();
+                return false;
+            }
+
+            const recaptcha = grecaptcha.getResponse();
+            if (recaptcha.length === 0) {
+                e.preventDefault();
+                alert('Veuillez compléter le reCAPTCHA');
+                return false;
+            }
+        });
+    </script>
 
 </body>
 

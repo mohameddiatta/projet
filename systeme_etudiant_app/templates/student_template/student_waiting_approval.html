@@ -1,63 +1,68 @@
-<!-- student_template/waiting_approval.html -->
 {% extends 'student_template/base_template.html' %}
 
-{% block content %}
+{% block main_content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header {% if student.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} text-white">
-                    <h4 class="card-title mb-0">
+            <div class="card shadow-lg border-0">
+                <div class="card-header {% if student.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} text-white text-center py-3">
+                    <h4 class="card-title mb-0 w-100">
                         {% if student.status == 'pending' %}
-                            <i class="fas fa-clock"></i> En attente d'approbation
+                            <i class="fas fa-clock"></i> STATUT : EN ATTENTE D'APPROBATION
                         {% else %}
-                            <i class="fas fa-times-circle"></i> Compte rejeté
+                            <i class="fas fa-times-circle"></i> STATUT : COMPTE REJETÉ
                         {% endif %}
                     </h4>
                 </div>
+
                 <div class="card-body text-center py-5">
                     {% if student.status == 'pending' %}
                         <div class="mb-4">
-                            <i class="fas fa-user-clock fa-5x text-warning"></i>
+                            <i class="fas fa-user-clock fa-5x text-warning fa-pulse"></i>
                         </div>
-                        <h3 class="text-warning">Votre compte est en cours de validation</h3>
-                        <p class="lead">
-                            L'administration vérifie actuellement vos informations.
+                        <h3 class="text-warning font-weight-bold">Validation en cours...</h3>
+                        <p class="lead text-muted">
+                            Bonjour <strong>{{ student.admin.first_name }}</strong>, l'administration vérifie actuellement votre dossier académique.
                         </p>
-                        <div class="alert alert-info">
-                            <h5><i class="fas fa-info-circle"></i> Que se passe-t-il ?</h5>
-                            <ul class="text-start">
-                                <li>Votre inscription a bien été enregistrée</li>
-                                <li>L'administration vérifie vos documents</li>
-                                <li>Vous recevrez un email de confirmation une fois approuvé</li>
-                                <li>Le délai de traitement est généralement de 24 à 48h</li>
+
+                        <div class="alert alert-light border mt-4 shadow-sm">
+                            <h5 class="text-info"><i class="fas fa-info-circle"></i> Informations utiles</h5>
+                            <hr>
+                            <ul class="text-left d-inline-block">
+                                <li><i class="fas fa-check text-success mr-2"></i> Votre inscription est bien enregistrée.</li>
+                                <li><i class="fas fa-search text-primary mr-2"></i> Vos documents sont en cours d'examen.</li>
+                                <li><i class="fas fa-envelope text-secondary mr-2"></i> Un email vous sera envoyé après validation.</li>
                             </ul>
                         </div>
 
                     {% elif student.status == 'rejected' %}
                         <div class="mb-4">
-                            <i class="fas fa-times-circle fa-5x text-danger"></i>
+                            <i class="fas fa-user-times fa-5x text-danger"></i>
                         </div>
-                        <h3 class="text-danger">Votre compte a été rejeté</h3>
+                        <h3 class="text-danger font-weight-bold">Accès refusé</h3>
 
                         {% if student.rejection_reason %}
-                        <div class="alert alert-danger mt-3">
-                            <h5><i class="fas fa-exclamation-triangle"></i> Raison du rejet :</h5>
-                            <p class="mb-0">{{ student.rejection_reason }}</p>
+                        <div class="card bg-light border-danger mt-3">
+                            <div class="card-body">
+                                <h5 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Motif du rejet :</h5>
+                                <p class="mb-0 font-italic">"{{ student.rejection_reason }}"</p>
+                            </div>
                         </div>
                         {% endif %}
 
                         <div class="mt-4">
-                            <p>Si vous pensez qu'il s'agit d'une erreur, contactez l'administration :</p>
-                            <a href="mailto:admin@votre-ecole.com" class="btn btn-primary">
-                                <i class="fas fa-envelope"></i> Contacter l'admin
+                            <p class="text-muted">Pour régulariser votre situation, veuillez contacter le service scolarité :</p>
+                            <a href="mailto:scolarite@votre-ecole.com" class="btn btn-primary shadow">
+                                <i class="fas fa-envelope"></i> Envoyer un message
                             </a>
                         </div>
                     {% endif %}
 
-                    <div class="mt-5">
-                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    <hr class="mt-5">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Identifié en tant que : {{ student.admin.username }}</small>
+                        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-sign-out-alt"></i> Se déconnecter
                         </a>
                     </div>
                 </div>

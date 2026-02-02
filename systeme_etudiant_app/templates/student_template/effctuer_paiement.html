@@ -1,10 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'student_template/base_template.html' %}
+{% load static %}
+{% load humanize %}
+effectuer ton paiement
+{% block main_content %}
+<section class="content">
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card card-success shadow-lg">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-wallet"></i> Finaliser mon paiement</h3>
+                    </div>
+                    <form method="POST" enctype="multipart/form-data" id="paiementForm">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="alert alert-info shadow-sm">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Reste à régler : {{ reste_a_payer|intcomma }} FCFA</strong>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Montant à verser (FCFA) *</label>
+                                        <input type="number" name="montant" id="montant" class="form-control"
+                                               min="1000" max="{{ reste_a_payer }}" step="500"
+                                               value="{{ reste_a_payer }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Méthode utilisée *</label>
+                                        <select class="form-control select2" id="methode" name="methode" required>
+                                            <option value=""> Choisir </option>
+                                            {% for code, label in methodes_paiement %}
+                                                <option value="{{ code }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group mt-2">
+                                <label>ID de la transaction *</label>
+                                <div class="input-group">
+                                    <input type="text" id="transaction_id" name="transaction_id"
+                                           class="form-control" placeholder="Ex: OM12345678" required>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-primary" onclick="generateTransactionId()">
+                                            <i class="fas fa-magic"></i> Simuler
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                      <div class="card-footer bg-light p-4">
+                         <div class="row g-3"> <div class="col-md-6">
+                            <button type="submit" id="btnSubmit" class="btn btn-success btn-lg w-100 shadow-sm py-3">
+                                <span class="btn-text">
+                                    <i class="fas fa-check-circle"></i> Confirmer le paiement
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            </button>
+                         </div>
+
+                            <div class="col-md-6">
+                                <a href="{% url 'payer_inscription' inscription.id %}"
+                                   class="btn btn-outline-danger btn-lg w-100 font-weight-bold py-3 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-times-circle mr-2"></i> Annuler / Retour
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    // Pour afficher le nom du fichier sélectionné
+    $('.custom-file-input').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    });
+
+    // Fonction de simulation d'ID
+    window.generateTransactionId = function() {
+        const methode = $('#methode').val();
+        if(!methode){ alert('Choisissez une méthode d\'abord'); return; }
+        const prefix = {orange_money:'OM', wave:'WV', free_money:'FM'}[methode] || 'TX';
+        const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+        $('#transaction_id').val(prefix + code);
+    };
+</script>
+{% endblock %}
+<script>
+$(document).ready(function() {
+    // 1. Afficher le nom du fichier
+    $('.custom-file-input').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    });
+
+    // 2. Sécurité : Désactiver le bouton après clic pour éviter les doublons
+    $('#paiementForm').on('submit', function() {
+        const btn = $('#btnSubmit');
+        btn.prop('disabled', true); // Désactive le bouton
+        btn.find('.btn-text').text('Traitement en cours...'); // Change le texte
+        btn.find('.spinner-border').removeClass('d-none'); // Affiche le spinner
+        return true; // Laisse le formulaire s'envoyer
+    });
+});
+
+// 3. Simuler l'ID
+function generateTransactionId() {
+    const methode = $('#methode').val();
+    if(!methode){ alert('Veuillez choisir une méthode d\'abord'); return; }
+    const prefix = {orange_money:'OM', wave:'WV', free_money:'FM'}[methode] || 'TX';
+    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    $('#transaction_id').val(prefix + code);
+}
+</script>

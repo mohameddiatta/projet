@@ -1,10 +1,150 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'staff_template/base_template.html' %}
+
+{% block page_title %}
+Edit Results
+{% endblock page_title %}
+{% block main_content %}
+ <section class="content">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <div class="container-flui">
+          <div class="row">
+            <div class="col-md-12">
+                <!--begin::Quick Example-->
+                <form action="{% url 'edit_student_result' %}" method="post">
+                    {% csrf_token %}
+                <div class="card card-primary card-outline mb-4">
+                    <!--begin::Header-->
+                     <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                        <div class="card-title">Edit Results</div>
+                    </div>
+                    <!--end::Header-->
+                    <!--begin::Form-->
+
+                        <!--begin::Body-->
+
+
+                            <div class="card-body">
+                                {{ form }}
+                            <div class="form-group">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        {% if message.tags == 'success' %}
+                                            <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                                        {% endif %}
+                                        {% if message.tags == 'error' %}
+                                            <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                        <!--end::Body-->
+                        <!--begin::Footer-->
+                        <div class="card-footer mt-4">
+                            <button type="submit" class="btn btn-primary btn-block" id="fetch_student">Updated Result</button>
+                        </div>
+
+                        <!--end::Footer-->
+
+                </div>
+                </div>
+                </form>
+                <!--end::Quick Example-->
+            </div>
+        </div>
+        </div>
+
+ </section>
+{% endblock main_content %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+
+    // Quand on change la matière
+    $("#id_subject_id").change(function(){
+        fetchStudents();
+    });
+
+    // Quand on change la session
+    $("#id_session_id").change(function(){
+        fetchStudents();
+    });
+
+    function fetchStudents(){
+        var session_year = $("#id_session_id").val();
+        var subject = $("#id_subject_id").val();
+
+        console.log("Subject:", subject);
+        console.log("Session Year:", session_year);
+
+        // Vérifier si la matière et la session sont sélectionnées
+        if (!subject || !session_year) {
+            $("#id_student_ids").html("<option value=''>Sélectionnez d'abord une matière et une session</option>");
+            return;
+        }
+
+        $.ajax({
+            url: '{% url "get_students" %}',
+            type: 'POST',
+            data: {
+                subject: subject,
+                session_year: session_year,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            dataType: 'json'
+        })
+        .done(function(response){
+            console.log("Server response:", response);
+
+            var json_data;
+
+            // Convertir en JSON si nécessaire
+            if (typeof response === 'string') {
+                try {
+                    json_data = JSON.parse(response);
+                } catch (e) {
+                    console.error("Erreur JSON:", e);
+                    $("#id_student_ids").html("<option value=''>Erreur de format des données</option>");
+                    return;
+                }
+            } else {
+                json_data = response;
+            }
+
+            console.log("Parsed data:", json_data);
+
+            var html = "<option value=''>Sélectionnez un étudiant</option>";
+
+            // Vérifier si c’est une liste
+            if (Array.isArray(json_data) && json_data.length > 0) {
+                json_data.forEach(function(std) {
+
+                    // Format : ID : 39 : Nom étudiant
+                    if (std.id && std.name) {
+                        html += `<option value="${std.id}">ID : ${std.id} : ${std.name}</option>`;
+                    } else if (std.id) {
+                        html += `<option value="${std.id}">ID : ${std.id} : (Nom non disponible)</option>`;
+                    }
+
+                });
+            } else {
+                html = "<option value=''>Aucun étudiant trouvé pour cette combinaison</option>";
+            }
+
+            // Mettre les options dans le select correct → id_student_ids
+            $("#id_student_ids").html(html);
+        })
+        .fail(function(xhr, status, error){
+            console.error("AJAX Error:", error);
+            console.error("Status:", status);
+            console.error("Response:", xhr.responseText);
+
+            $("#id_student_ids").html("<option value=''>Erreur de chargement des étudiants</option>");
+        });
+    }
+
+});
+</script>
+
+{% endblock custom_js %}
+

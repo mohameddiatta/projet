@@ -1,10 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Reçu de Paiement - {{ paiement.transaction_id }}</title>
+    <style>
+        @page {
+            size: A5; /* Format plus petit, idéal pour un reçu */
+            margin: 1cm;
+        }
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
+        .header h1 { color: #28a745; margin-bottom: 5px; text-transform: uppercase; }
+        .content { margin-top: 30px; }
+        .info-row { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .footer { margin-top: 50px; font-size: 10px; text-align: center; color: #777; border-top: 1px solid #ccc; padding-top: 10px; }
+        .amount-box { background: #f4f4f4; padding: 15px; text-align: center; font-size: 1.2em; font-weight: bold; margin-top: 20px; border: 1px solid #ddd; }
+    </style>
 </head>
 <body>
-$END$
+    <div class="header">
+        <h1>REÇU DE PAIEMENT</h1>
+        <p>Référence Transaction : <strong>{{ paiement.transaction_id }}</strong></p>
+    </div>
+
+    <div class="content">
+        <div class="info-row">
+            <strong>Étudiant :</strong> {{ paiement.inscription.students.admin.last_name|upper }} {{ paiement.inscription.students.admin.first_name }}
+        </div>
+        <div class="info-row">
+            <strong>Date du paiement :</strong> {{ paiement.date_paiement|date:"d F Y" }}
+        </div>
+        <div class="info-row">
+            <strong>Méthode de paiement :</strong> {{ paiement.get_methode_display }}
+        </div>
+        
+        <div class="amount-box">
+            Montant Versé : {{ paiement.montant }} FCFA
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Document généré le {% now "d/m/Y à H:i" %}</p>
+        <p>Ce reçu est une preuve de transaction électronique valide.</p>
+    </div>
 </body>
 </html>

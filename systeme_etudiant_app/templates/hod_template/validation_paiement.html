@@ -1,10 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'hod_template/base_template.html' %}
+
+{% block page_title %}
+Validation des Paiements en Attente
+{% endblock page_title %}
+
+{% block main_content %}
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Transactions en attente de vérification</h3>
+                <div class="card-tools">
+                    <span class="badge badge-warning p-2">
+                        <i class="fas fa-clock mr-1"></i> {{ paiements|length }} dossier(s) à traiter
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 10px">ID</th>
+                            <th>Étudiant</th>
+                            <th>Montant</th>
+                            <th>Date d'envoi</th>
+                            <th>Référence</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    {% for paiement in paiements %}
+    <tr>
+        <td>#{{ paiement.id }}</td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="mr-3">
+                    <span class="badge badge-info d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; border-radius: 50%;">
+                        {{ paiement.inscription.students.admin.last_name|slice:":1"|upper }}
+                    </span>
+                </div>
+                <div>
+                    <span class="d-block fw-bold text-dark">
+                        {{ paiement.inscription.students.admin.last_name|upper }} {{ paiement.inscription.students.admin.first_name }}
+                    </span>
+                    <small class="text-muted">{{ paiement.inscription.students.admin.email }}</small>
+                </div>
+            </div>
+        </td>
+        <td>
+            <span class="text-primary font-weight-bold">
+                {{ paiement.montant|floatformat:0 }} FCFA
+            </span>
+        </td>
+        <td>{{ paiement.date_paiement|date:"d/m/Y" }}</td>
+        <td>
+            <code class="text-secondary">{{ paiement.transaction_id|default:"Aucun" }}</code>
+        </td>
+        <td class="text-center">
+    <div class="btn-group">
+        <a href="{% url 'detail_inscription' paiement.inscription.id %}"
+           class="btn btn-info btn-sm shadow-sm mr-1">
+            <i class="fas fa-eye"></i> Examiner
+        </a>
+
+        {% if paiement.statut == 'en_attente' %}
+            <a href="{% url 'valider_transaction' paiement.id %}"
+               class="btn btn-warning btn-sm px-3 shadow-sm text-dark font-weight-bold"
+               onclick="return confirm('Voulez-vous valider ce paiement ?');">
+                <i class="fas fa-hourglass-half mr-1"></i> Valider maintenant
+            </a>
+        {% elif paiement.statut == 'valide' or paiement.statut == 'validé' %}
+            <button class="btn btn-success btn-sm px-3 shadow-sm disabled">
+                <i class="fas fa-check-double"></i> Validé
+            </button>
+        {% else %}
+            <span class="badge badge-danger">Refusé</span>
+        {% endif %}
+    </div>
+</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" class="text-center py-5">
+            <div class="text-muted">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h5>Aucune transaction en attente</h5>
+                <p>Toutes les demandes de paiement ont été traitées avec succès.</p>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+                </table>
+            </div>
+
+            <div class="card-footer clearfix">
+                <small class="text-muted italic">
+                    Note : Cliquez sur "Examiner" pour voir le reçu et l'état complet du dossier étudiant.
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock main_content %}

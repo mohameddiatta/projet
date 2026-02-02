@@ -15,10 +15,12 @@ Edit Staff {{ staff.username}} | #ID:{{staff.admin.id}}
                 <!--begin::Quick Example-->
                 <div class="card card-primary card-outline mb-4">
                     <!--begin::Header-->
-                    <div class="card-header">
+                     <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
                         <div class="card-title">Edit Staff</div>
                     </div>
                     <!--end::Header-->
+                     <!--begin::Form-->
+
                     <!--begin::Form-->
                     <form action="/edit_staff_save" method="post">
                         {% csrf_token %}
@@ -33,13 +35,13 @@ Edit Staff {{ staff.username}} | #ID:{{staff.admin.id}}
                             </div>
 
                             <div class="mb-3">
-                                <label>Last Name</label>
-                                <input type="text" class="form-control" name="last_name"  placeholder="Last Name" value="{{ staff.admin.last_name}}" required>
-                                <input type="hidden" name="staff_id"  placeholder="Last Name" value="{{ staff.admin.id}}" required>
+                                <label>First Name</label>
+                                <input type="text" class="form-control" name="first_name"  placeholder="first Name" value="{{ staff.admin.first_name}}" required>
+                                <input type="hidden" name="staff_id"  placeholder="first Name" value="{{ staff.admin.id}}" required>
                             </div>
                             <div class="mb-3">
-                                <label>First Name</label>
-                                <input type="text" class="form-control" name="first_name"  placeholder="First Name" value="{{ staff.admin.first_name}}" required>
+                                <label>Last Name</label>
+                                <input type="text" class="form-control" name="last_name"  placeholder="last Name" value="{{ staff.admin.last_name}}" required>
                             </div>
                             <div class="mb-3">
                                 <label>Username</label>
@@ -49,6 +51,9 @@ Edit Staff {{ staff.username}} | #ID:{{staff.admin.id}}
                                 <label>Address</label>
                                 <input type="text" class="form-control" name="address"  placeholder="Address" value="{{ staff.admin.address}}" required>
                             </div>
+                             {% url 'edit_staff_save' as action_path %}
+                             {% include 'hod_template/form_template.html' with messages=messages form=form action_path=action_path button_text="Edit Staff" %}
+
                             <div class="form-group">
                                 {% if messages %}
                                     {% for message in messages %}
@@ -64,9 +69,7 @@ Edit Staff {{ staff.username}} | #ID:{{staff.admin.id}}
                         </div>
                         <!--end::Body-->
                         <!--begin::Footer-->
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary btn-block">Edit Staff</button>
-                        </div>
+
                         <!--end::Footer-->
                     </form>
                 </div>

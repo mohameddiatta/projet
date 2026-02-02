@@ -1,9 +1,9 @@
 {% load static %}
-<!doctype html>
+
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Student Management System | Staff Login</title>
+  <title>Student Management System | Student Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AdminLTE Dashboard basé sur Bootstrap 5" />
 
@@ -20,9 +20,12 @@
   <link rel="stylesheet" href="{% static 'dist/css/adminlte.css' %}">
 
   <!-- Apexcharts + JSVectormap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
 
   <!-- Fix scroll overflow -->
@@ -34,26 +37,35 @@
 
   {% block custom_css %}
   {% endblock custom_css %}
+
+  <!-- JQUERY DOIT ÊTRE CHARGÉ ICI, DANS LE HEAD -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- CHART.JS DOIT ÊTRE CHARGÉ AVANT LA FERMETURE DU HEAD -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 </head>
 
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-  <div class="app-wrapper">
-    <!-- Header -->
-    <nav class="app-header navbar navbar-expand bg-body">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <!-- 🔧 Le bouton menu toggle ne redirige plus vers /logout_user -->
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-              <i class="bi bi-list"></i>
-            </a>
-          </li>
-        </ul>
-    
+ <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <!--begin::Header-->
+      <nav class="app-header navbar navbar-expand bg-body">
+        <!--begin::Container-->
+        <div class="container-fluid">
+          <!--begin::Start Navbar Links-->
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <i class="bi bi-list"></i>
+              </a>
+            </li>
+            
+          </ul>
+
         <h3 class="m-0 text-truncate" style="max-width: 70vw;">
-          Student Management System | Staff
+          Student Management System | Student Panel
         </h3>
-    
+
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
             <!-- ✅ Seul ce lien déconnecte -->
@@ -62,10 +74,10 @@
         </ul>
       </div>
     </nav>
-    
+
 
     <!-- Sidebar -->
-    {% include 'staff_template/sidebar_template.html' with user=user id=id %}
+    {% include 'student_template/sidebar_student.html' with user=user id=id %}
 
     <!-- Main content -->
     <div class="app-main">
@@ -85,7 +97,7 @@
         </div>
       </section>
 
-    
+
 
       <!-- Page content -->
       <section class="app-content">
@@ -97,7 +109,7 @@
     </div>
 
     <!-- Footer -->
-    {% include 'staff_template/footer.html' %}
+    {% include 'student_template/footer.html' %}
   </div>
 
   <!-- Scripts -->
@@ -106,7 +118,27 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
   <script src="{% static 'dist/js/adminlte.js' %}"></script>
 
+  <!-- SUPPRIMEZ Chart.js d'ici (déjà chargé dans le head) -->
+
   <script>
+    // Vérifier que jQuery est chargé
+    if (typeof jQuery == 'undefined') {
+      console.error('jQuery n\'est pas chargé !');
+      // Charger jQuery dynamiquement
+      var script = document.createElement('script');
+      script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+      document.head.appendChild(script);
+    }
+
+    // Vérifier que Chart.js est chargé
+    if (typeof Chart == 'undefined') {
+      console.error('Chart.js n\'est pas chargé !');
+      // Charger Chart.js dynamiquement
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js';
+      document.head.appendChild(script);
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       const sidebarWrapper = document.querySelector('.sidebar-wrapper');
       if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
@@ -127,7 +159,27 @@
   <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js" crossorigin="anonymous"></script>
 
+  <!-- Select2 (chargé après jQuery) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <script>
+    // Initialiser Select2 quand le DOM est prêt
+    $(document).ready(function() {
+      console.log('jQuery chargé, version:', $.fn.jquery);
+      console.log('Chart.js disponible:', typeof Chart !== 'undefined');
+      console.log('Firebase disponible:', typeof firebase !== 'undefined');
+
+      $('.select2').select2({
+        theme: 'bootstrap-5'
+      });
+    });
+  </script>
+
   {% block custom_js %}
+  <!-- Vos scripts personnalisés ici -->
   {% endblock custom_js %}
 </body>
 </html>

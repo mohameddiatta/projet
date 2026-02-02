@@ -4,78 +4,138 @@ Student Leave
 {% endblock page_title %}
 {% block main_content %}
 
-<!--begin::App Content Header-->
-<!--end::App Content Header-->
 <!--begin::App Content-->
 <div class="app-content">
-    <!--begin::Container-->
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <!--begin::Quick Example-->
+                <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
                 <div class="card card-primary card-outline mb-4">
-                    <!--begin::Header-->
-                    <div class="card-header">
-                        <div class="card-title">Student Leave</div>
+                    <!-- Titre -->
+                    <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                        <h3 class="card-title">Student Leave</h3>
                     </div>
-                    <!--end::Header-->
-                    <!--begin::Form-->
-                    <form action="/add_student_leave_save" method="post">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <!--begin::Body-->
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label>Email address</label>
-                                <input type="email" class="form-control" name="email" placeholder="Email" name="email" required>
-                                <div id="emailHelp" class="form-text"></div>
-                            </div>
-                            <div class="mb-3">
-                                <label>Password</label>
-                                <input type="password" class="form-control" name="password" placeholder="Password"  required>
-                            </div>
-                            <div class="mb-3">
-                                <label>First Name</label>
-                                <input type="text" class="form-control" name="first_name" placeholder="First Name"  required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Last Name</label>
-                                <input type="text" class="form-control" name="last_name"  placeholder="Last Name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Username</label>
-                                <input type="text" class="form-control" name="username" placeholder="Username"  required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Address</label>
-                                <input type="text" class="form-control" name="address"  placeholder="Address" required>
-                            </div>
-                            <div class="form-group">
-                                {% if messages %}
-                                    {% for message in messages %}
-                                        {% if message.tags == 'cuccess' %}
-                                            <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+
+                    <!-- Tableau -->
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Leave Date</th>
+                                    <th>Leave Message</th>
+                                    <th>Apply On</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in leaves %}
+                                <tr>
+                                    <td>{{ leave.id }}</td>
+                                    <td>{{ leave.student_id.admin.id }}</td>
+                                    <td>{{ leave.student_id.admin.first_name }} {{ leave.student_id.admin.last_name }}</td>
+                                    <td>{{ leave.leave_date }}</td>
+                                    <td>{{ leave.leave_message }}</td>
+                                    <td>{{ leave.created_at }}</td>
+                                    <td class="align-middle">
+                                        {% if leave.leave_status == 0 %}
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'staff_approve_leave' leave_id=leave.id %}" class="btn btn-success btn-sm">Approve</a>
+                                                <a class="btn btn-danger btn-sm" href="{% url 'staff_disapprove_leave' leave_id=leave.id %}">Disapprove</a>
+                                            </div>
+                                        {% elif leave.leave_status == 1 %}
+                                            <button class="btn btn-warning btn-sm" disabled="disabled">Approved</button>
+                                        {% else %}
+                                            <button class="btn btn-danger btn-sm" disabled="disabled">Disapproved</button>
                                         {% endif %}
-                                        {% if message.tags == 'error' %}
-                                            <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!--end::Body-->
-                        <!--begin::Footer-->
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary btn-block">Add Staff</button>
-                        </div>
-                        <!--end::Footer-->
-                    </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
-                <!--end::Quick Example-->
+
             </div>
         </div>
     </div>
-    <!--end::Container-->
+</div>
+
+<div class="modal" id="reply_modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Reply</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <p>Reply <span class="reply_name"></span></p>
+          <input type="hidden" id="reply_id" name="reply_id">
+          <div class="mb-3">
+          <textarea class="form-control" rows="5" id="reply_message"></textarea>
+          </div>
+          <button id="reply_btn" class="btn btn-info btn-block">Reply</button>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
 </div>
 <!--end::App Content-->
+
 {% endblock main_content %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+    $(".reply_open_model").click(function(){
+        var id = $(this).parents("tr").children("td:eq(0)").text();
+        var name = $(this).parents("tr").children("td:eq(2)").text();
+
+        $("#reply_id").val(id);
+        $(".reply_name").text(name);
+    });
+});
+
+$(document).on("click", "#reply_btn", function(){
+    $(this).attr("disabled", "disabled");
+    $(this).text("Sending Reply...");
+
+    var id = $("#reply_id").val();
+    var message = $("#reply_message").val();
+
+    $.ajax({
+        url: '{% url "feedback_message_staff_replied" %}',
+        type: 'POST',
+        data: {
+            id: id,
+            message: message,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+    })
+    .done(function(response){
+        if(response == "True"){
+            alert("Reply Sent!");
+        } else {
+            alert("Error in Sending Reply");
+        }
+        location.reload();
+    })
+    .fail(function(xhr, status, error){
+       alert("AJAX Error in Sending Student Reply");
+    });
+});
+</script>
+
+{% endblock custom_js %}

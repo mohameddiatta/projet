@@ -1,10 +1,496 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'student_template/base_template.html' %}
+{% load static %}
+
+{% block page_title %} Détails de mon inscription {% endblock %}
+
+{% block main_content %}
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <a href="{% url 'mes_inscriptions' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à mes inscriptions
+                    </a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-file-invoice"></i>
+                            Détails de mon inscription #{{ inscription.id }}
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Informations principales -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card border-primary h-100 shadow-sm">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fas fa-user-graduate"></i> Informations personnelles
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-2"><strong>Nom complet :</strong><br>
+                                            <span class="text-dark">{{ student.admin.get_full_name }}</span>
+                                        </p>
+                                        <p class="mb-2"><strong>Email :</strong><br>
+                                            <span class="text-dark">{{ student.admin.email }}</span>
+                                        </p>
+                                        <p class="mb-2"><strong>INE :</strong><br>
+                                            <span class="text-dark">{{ student.ine|default:"Non renseigné" }}</span>
+                                        </p>
+                                        <p class="mb-2"><strong>Téléphone :</strong><br>
+                                            <span class="text-dark">{{ student.telephone|default:"Non renseigné" }}</span>
+                                        </p>
+                                        <p class="mb-0"><strong>Date d'inscription :</strong><br>
+                                            <span class="text-dark">{{ inscription.date_inscription|date:"d/m/Y " }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card border-info h-100 shadow-sm">
+                                    <div class="card-header bg-info text-white">
+                                        <i class="fas fa-graduation-cap"></i> Informations académiques
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Filière -->
+                                        <div class="mb-3">
+                                            <label class="small text-muted d-block mb-1">Filière</label>
+                                            <div class="bg-primary text-white p-2 rounded fw-bold">
+                                                {{ inscription.filiere.get_Nom_filiere_display }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Niveau -->
+                                        <div class="mb-3"><label class="small text-muted d-block mb-1">Niveau</label>
+                                            <div class="bg-success text-white p-2 rounded fw-bold">
+                                                {{ inscription.niveau.nom_niveau }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Statut -->
+                                        <div class="mb-3">
+                                            <label class="small text-muted d-block mb-1">Statut du dossier</label>
+                                            {% if inscription.statut == 'approuvé' %}
+                                                <div class="bg-success text-white p-2 rounded fw-bold">
+                                                    <i class="fas fa-check-circle mr-1"></i> Approuvé
+                                                </div>
+                                            {% elif inscription.statut == 'rejeté' %}
+                                                <div class="bg-danger text-white p-2 rounded fw-bold">
+                                                    <i class="fas fa-times-circle mr-1"></i> Rejeté
+                                                </div>
+                                            {% else %}
+                                                <div class="bg-warning text-dark p-2 rounded fw-bold">
+                                                    <i class="fas fa-clock mr-1"></i> En attente
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if inscription.statut == 'rejeté' and inscription.motif_rejet %}
+                                            <div class="border border-danger bg-light p-2 rounded">
+                                                <small class="text-danger">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                                    <strong>Motif :</strong> {{ inscription.motif_rejet }}
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card border-success h-100 shadow-sm">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fas fa-money-bill-wave"></i> Informations financières
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-2"><strong>Montant total :</strong><br>
+                                            <span class="h4 text-primary fw-bold">
+                                                {{ inscription.montant_total|floatformat:0 }} FCFA
+                                            </span>
+                                        </p>
+                                        <p class="mb-2"><strong>Déjà payé :</strong><br>
+                                            <span class="h4 text-success fw-bold">
+                                                {{ total_paye|floatformat:0 }} FCFA
+                                            </span>
+                                        </p>
+                                        <p class="mb-3"><strong>Reste à payer :</strong><br>
+                                            <span class="h4 text-warning fw-bold">
+                                                {{ reste_a_payer|floatformat:0 }} FCFA
+                                            </span>
+                                        </p>
+                                        <div class="mt-3">
+                                            <strong class="d-block mb-1">Progression du paiement</strong>
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-success"
+                                                     style="width: {{ pourcentage_paye }}%">
+                                                    <strong>{{ pourcentage_paye|floatformat:1 }}%</strong>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block mt-1">
+                                                {{ total_paye|floatformat:0 }} / {{ inscription.montant_total|floatformat:0 }} FCFA
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Documents -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-paperclip"></i>
+                                    Mes documents ({{ docs_presents }}/{{ total_docs }})
+                                </h5>
+                                {% if inscription.statut == 'rejeté' or inscription.statut == 'en attente' %}
+                                    <a href="{% url 'mis_ajour_document' inscription.id %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for doc in documents %}
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card text-center h-100 shadow-sm {% if doc.present %}border-success{% else %}border-danger{% endif %}">
+                                            <div class="card-header {% if doc.present %}bg-success text-white{% else %}bg-danger text-white{% endif %} d-flex justify-content-between align-items-center">
+                                                <span class="small">{{ doc.nom }}</span>
+                                                {% if doc.present %}
+                                                    <i class="fas fa-check-circle"></i>
+                                                {% else %}
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="card-body d-flex flex-column">
+                                                {% if doc.present %}
+                                                    <div class="mb-3 flex-grow-1">
+                                                        <div class="mb-2">
+                                                            <i class="fas fa-file-alt fa-3x text-success"></i>
+                                                        </div>
+                                                        <p class="text-success mb-0 fw-bold">Document fourni</p>
+                                                        {% if doc.fichier %}
+                                                            <small class="text-muted">
+                                                                Taille : {{ doc.fichier.size|filesizeformat }}
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="mt-auto">
+                                                        <a href="{{ doc.url }}" target="_blank"
+                                                           class="btn btn-outline-primary btn-sm btn-block mb-1">
+                                                            <i class="fas fa-eye mr-1"></i> Visualiser
+                                                        </a>
+                                                        {% if inscription.statut == 'rejeté' or inscription.statut == 'en attente' %}
+                                                            <a href="{% url 'mis_ajour_document' inscription.id %}"
+                                                               class="btn btn-outline-warning btn-sm btn-block">
+                                                                <i class="fas fa-edit mr-1"></i> Remplacer
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="mb-3 flex-grow-1">
+                                                        <div class="mb-2">
+                                                            <i class="fas fa-file-excel fa-3x text-danger"></i>
+                                                        </div>
+                                                        <p class="text-danger mb-0 fw-bold">Document manquant</p>
+                                                        <small class="text-muted">Obligatoire</small>
+                                                    </div>
+                                                    <div class="mt-auto">
+                                                        {% if inscription.statut == 'rejeté' or inscription.statut == 'en attente' %}
+                                                            <a href="{% url 'mis_ajour_document' inscription.id %}"
+                                                               class="btn btn-danger btn-sm btn-block">
+                                                                <i class="fas fa-upload mr-1"></i> Ajouter ce document
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Non modifiable</span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Information sur la modification des documents -->
+                                {% if inscription.statut == 'rejeté' or inscription.statut == 'en attente' %}
+                                <div class="alert {% if inscription.statut == 'rejeté' %}alert-danger{% else %}alert-warning{% endif %} mt-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3">
+                                            <i class="fas {% if inscription.statut == 'rejeté' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} fa-2x"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-2">
+                                                {% if inscription.statut == 'rejeté' %}
+                                                    <i class="fas fa-times-circle"></i> Dossier rejeté
+                                                {% else %}
+                                                    <i class="fas fa-clock"></i> Dossier en attente
+                                                {% endif %}
+                                            </h5>
+
+                                            <p class="mb-2">
+                                                {% if inscription.statut == 'rejeté' %}
+                                                    Votre dossier a été rejeté. Veuillez corriger les problèmes mentionnés.
+                                                {% else %}
+                                                    Votre dossier est en cours d'examen. Vous pouvez encore modifier vos documents.
+                                                {% endif %}
+                                            </p>
+
+                                            {% if inscription.statut == 'rejeté' and inscription.motif_rejet %}
+                                                <div class="bg-light p-3 rounded mb-2">
+                                                    <strong><i class="fas fa-comment-alt mr-2"></i>Motif du rejet :</strong>
+                                                    {{ inscription.motif_rejet }}
+                                                </div>
+                                            {% endif %}
+
+                                            {% if docs_presents < total_docs %}
+                                                <div class="bg-light p-3 rounded">
+                                                    <strong><i class="fas fa-file-excel mr-2"></i>Documents manquants :</strong>
+                                                    {% for doc in documents %}
+                                                        {% if not doc.present %}
+                                                            <span class="badge bg-danger mx-1">{{ doc.nom }}</span>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="text-center mt-3">
+                                                <a href="{% url 'mis_ajour_document' inscription.id %}"
+                                                   class="btn {% if inscription.statut == 'rejeté' %}btn-danger{% else %}btn-warning{% endif %} btn-lg">
+                                                    <i class="fas fa-file-upload mr-2"></i>
+                                                    {% if inscription.statut == 'rejeté' %}
+                                                        Corriger mon dossier
+                                                    {% else %}
+                                                        Modifier mes documents
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <!-- Version minimale -->
+                                {% if docs_presents < total_docs or inscription.statut != 'approuvé' %}
+                                <div class="mt-3 text-right">
+                                    <a href="{% url 'mis_ajour_document' inscription.id %}"
+                                       class="btn btn-sm {% if docs_presents < total_docs %}btn-outline-danger{% else %}btn-outline-warning{% endif %}">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        {% if docs_presents < total_docs %}
+                                            <span class="badge badge-danger">{{ total_docs|add:"-docs_presents" }}</span>
+                                            Ajouter docs
+                                        {% else %}
+                                         Modifier mees documents
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                {% endif %}
+                                <!-- Barre de progression documents -->
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-bold">Documents fournis</span>
+                                        <span class="fw-bold">{{ pourcentage_docs|floatformat:0 }}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if pourcentage_docs == 100 %}bg-success{% else %}bg-info{% endif %}"
+                                             style="width: {{ pourcentage_docs }}%">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">
+                                        {{ docs_presents }}/{{ total_docs }} documents
+                                        {% if docs_presents < total_docs %}
+                                            - <span class="text-danger">Manque :
+                                            {% for doc in documents %}
+                                                {% if not doc.present %}{{ doc.nom }}{% if not forloop.last %}, {% endif %}{% endif %}
+                                            {% endfor %}
+                                            </span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Historique des paiements -->
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white d-flex align-items-center">
+                                <i class="fas fa-history mr-2"></i>
+                                <h5 class="mb-0">Historique des paiements</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if paiements %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>ID Transaction</th>
+                                                    <th>Montant</th>
+                                                    <th>Méthode</th>
+                                                    <th>Statut</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for paiement in paiements %}
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <strong>{{ paiement.date_paiement|date:"d/m/Y" }}</strong><br>
+                                                        <small class="text-muted">{{ paiement.date_paiement|time:"H:i" }}</small>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <code title="{{ paiement.transaction_id }}"
+                                                              style="cursor: pointer; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;"
+                                                              class="text-dark">
+                                                            {{ paiement.transaction_id|truncatechars:20 }}
+                                                        </code>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <span class="badge p-2 fw-bold"
+                                                              style="background-color: #007bff; color: white !important; min-width: 100px;">
+                                                            {{ paiement.montant|floatformat:0 }} FCFA
+                                                        </span>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <span class="d-inline-flex align-items-center">
+                                                            {% if paiement.methode == 'mobile_money' %}
+                                                                <i class="fas fa-mobile-alt text-primary mr-2"></i>
+                                                            {% elif paiement.methode == 'carte' %}
+                                                                <i class="fas fa-credit-card text-info mr-2"></i>
+                                                            {% elif paiement.methode == 'especes' %}
+                                                                <i class="fas fa-money-bill-wave text-success mr-2"></i>
+                                                            {% endif %}
+                                                            {{ paiement.get_methode_display }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        {% if paiement.statut == 'valide' %}
+                                                            <span class="badge p-2 fw-bold"
+                                                                  style="background-color: #28a745; color: white !important; border: 1px solid #1e7e34;">
+                                                                <i class="fas fa-check-circle mr-1"></i> Validé
+                                                            </span>
+                                                        {% elif paiement.statut == 'en_attente' %}
+                                                            <span class="badge p-2 fw-bold"
+                                                                  style="background-color: #ffc107; color: #000 !important; border: 1px solid #d39e00;">
+                                                                <i class="fas fa-clock mr-1"></i> En attente
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge p-2 fw-bold"
+                                                                  style="background-color: #dc3545; color: white !important; border: 1px solid #c82333;">
+                                                                <i class="fas fa-times-circle mr-1"></i> Échoué
+                                                            </span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot class="table-active">
+                                                <tr>
+                                                    <td colspan="2" class="text-right">
+                                                        <strong class="h5">Total payé :</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span class="h4 text-primary fw-bold">
+                                                            {{ total_paye|floatformat:0 }} FCFA
+                                                        </span>
+                                                    </td>
+                                                    <td colspan="2">
+                                                        <span class="badge p-2 float-right"
+                                                              style="background-color: #17a2b8; color: white;">
+                                                            {{ paiements|length }} paiement{{ paiements|length|pluralize }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <div class="mb-4">
+                                            <i class="fas fa-credit-card fa-4x text-muted"></i>
+                                        </div>
+                                        <h4 class="text-muted mb-3">Aucun paiement effectué</h4>
+                                        <p class="text-muted mb-4">
+                                            Vous n'avez pas encore effectué de paiement pour cette inscription.
+                                        </p>
+                                        {% if inscription.statut == 'approuvé' and reste_a_payer > 0 %}
+                                            <a href="{% url 'payer_inscription' inscription.id %}"
+                                               class="btn btn-success btn-lg">
+                                                <i class="fas fa-credit-card mr-2"></i>
+                                                Effectuer un paiement
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if inscription.statut == 'rejeté' %}
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a href="{% url 'student_inscription' %}" class="btn btn-warning btn-lg">
+                                            <i class="fas fa-redo mr-2"></i> Recommencer l'inscription
+                                        </a>
+                                        <a href="{% url 'mis_ajour_document' inscription.id %}" class="btn btn-danger btn-lg">
+                                            <i class="fas fa-file-upload mr-2"></i> Corriger les documents
+                                        </a>
+                                    </div>
+                                {% elif inscription.statut == 'en attente' %}
+                                    <a href="{% url 'mis_ajour_document' inscription.id %}" class="btn btn-warning btn-lg">
+                                        <i class="fas fa-edit mr-2"></i> Modifier mes documents
+                                    </a>
+                                {% elif inscription.statut == 'approuvé' %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle fa-2x text-success mr-2"></i>
+                                        <div>
+                                            <h5 class="mb-0 text-success">Dossier approuvé</h5>
+                                            <small class="text-muted">Votre inscription est validée</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if inscription.statut == 'approuvé' and reste_a_payer > 0 %}
+                                <div>
+                                    <a href="{% url 'payer_inscription' inscription.id %}" class="btn btn-success btn-lg">
+                                        <i class="fas fa-credit-card mr-2"></i> Payer maintenant
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Copier l'ID de transaction
+    $('code').on('click', function() {
+        const textToCopy = $(this).attr('title') || $(this).text();
+
+        // Créer un élément temporaire pour copier
+        const tempInput = $('<textarea>');
+        $('body').append(tempInput);
+        tempInput.val(textToCopy).select();
+        document.execCommand('copy');
+        tempInput.remove();
+
+        // Feedback visuel
+        const originalText = $(this).text();
+        $(this).text('Copié !').addClass('text-success');
+        setTimeout(() => {
+            $(this).text(originalText).removeClass('text-success');
+        }, 1000);
+    });
+});
+</script>
+{% endblock %}

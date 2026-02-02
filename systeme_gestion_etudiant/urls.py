@@ -1,40 +1,48 @@
-"""
-URL configuration for systeme_gestion_etudiant project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from systeme_etudiant_app import HodViews, views
+from systeme_etudiant_app import studentViews
+from systeme_etudiant_app import staffViews
+from systeme_etudiant_app.EditResultViewClass import EditResultViewClass
+from systeme_etudiant_app.forms import EditResultForm
 from systeme_gestion_etudiant import settings
+from django.contrib.auth import views as auth_views
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.ShowLoginPage, name='login_page'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/password_reset/',auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html',
+             email_template_name='registration/password_reset_email.html',
+             subject_template_name='registration/password_reset_subject.txt'), name='password_reset'),
+    path('accounts/password_reset/done/',auth_views.PasswordResetDoneView.as_view(
+             template_name='registration/password_reset_done.html'), name='password_reset_done'),
+
+
+    #path('index2/', views.index2, name='index2'),
+    path('', views.ShowLoginPage, name='show_login'),
+    path('creer_compte_admin/', views.creer_compte_admin, name='creer_compte_admin'),
+    path('do_creer_compte_admin/', views.do_creer_compte_admin, name='do_creer_compte_admin'),
+    path('creer_compte_staff/', views.creer_compte_staff, name='creer_compte_staff'),
+    path('do_creer_compte_staff/', views.do_creer_compte_staff, name='do_creer_compte_staff'),
+    path('creer_compte_student/', views.creer_compte_student, name='creer_compte_student'),
+    path('do_creer_compte_student/', views.do_creer_compte_student, name='do_creer_compte_student'),
+    path('login/', views.ShowLoginPage, name='login'),
     path('get_user_details', views.GetUserDetails, name='get_user_details'),
     path('logout', views.logout_user, name='logout'),
     path('logout_user', views.logout_user, name='logout_user'),
     path('admin_home', HodViews.admin_home, name='admin_home'),
     path('demo', views.showDemoPage, name='demo_page'),
-    
-    path('doLogin', views.doLogin, name='do_login'),
+    path('do_login', views.do_login, name='do_login'),
+    path('do_login', views.do_login, name='do_login'),
     path('add_staff', HodViews.add_staff, name='add_staff'),
     path('add_staff_save', HodViews.add_staff_save, name='add_staff_save'),
     path('add_student', HodViews.add_student, name='add_student'),
     path('add_student_save', HodViews.add_student_save, name='add_student_save'),
-    path('add_courses', HodViews.add_course, name='add_courses'),
-    path('add_course_save', HodViews.add_course_save, name='add_course_save'),
+    path('add_courses', HodViews.add_courses, name='add_courses'),
+    path('add_courses_save', HodViews.add_courses_save, name='add_courses_save'),
     path('add_subject', HodViews.add_subject, name='add_subject'),
     path('add_subject_save', HodViews.add_subject_save, name='add_subject_save'),
     path('manage_staff', HodViews.manage_staff, name='manage_staff'),
@@ -45,11 +53,95 @@ urlpatterns = [
     path('edit_staff_save', HodViews.edit_staff_save, name='edit_staff_save'),
     path('edit_student/<str:student_id>', HodViews.edit_student, name='edit_student'),
     path('edit_student_save', HodViews.edit_student_save, name='edit_student_save'),
-    path('demo_page/', HodViews.demo_page, name='demo_page'),
+    path('edit_subject/<str:subject_id>', HodViews.edit_subject, name='edit_subject'),
+    path('edit_subject_save', HodViews.edit_subject_save, name='edit_subject_save'),
+    path('edit_course/<str:course_id>', HodViews.edit_course, name='edit_course'),
+    path('edit_course_save', HodViews.edit_course_save, name='edit_course_save'),
+    path('manage_session', HodViews.manage_session, name='manage_session'),
+    path('add_session_save', HodViews.add_session_save, name='add_session_save'),
+    path('user_email_check', HodViews.user_email_check, name="user_email_check"),
+    path('username_check', HodViews.username_check, name="username_check"),
+    path('feedback_message_student', HodViews.feedback_message_student, name="feedback_message_student"),
+    path('feedback_message_student_replied', HodViews.feedback_message_student_replied, name="feedback_message_student_replied"),
+    path('feedback_message_staff', HodViews.feedback_message_staff, name="feedback_message_staff"),
+    path('feedback_message_staff_replied', HodViews.feedback_message_staff_replied, name="feedback_message_staff_replied"),
+    path('student_leave', HodViews.student_leave,name="student_leave"),
+    path('student_approve_leave/<str:leave_id>', HodViews.student_approve_leave,name="student_approve_leave"),
+    path('student_disapprove_leave/<str:leave_id>', HodViews.student_disapprove_leave,name="student_disapprove_leave"),
+    path('staff_leave', HodViews.staff_leave, name="staff_leave"),
+    path('staff_approve_leave/<str:leave_id>', HodViews.staff_approve_leave,name="staff_approve_leave"),
+    path('staff_disapprove_leave/<str:leave_id>', HodViews.staff_disapprove_leave,name="staff_disapprove_leave"),
+    path('admin_view_attendance', HodViews.admin_view_attendance, name="admin_view_attendance"),
+    path('admin_get_attendance_dates', HodViews.admin_get_attendance_dates, name="admin_get_attendance_dates"),
+    path('admin_get_attendance_student', HodViews.admin_get_attendance_student, name="admin_get_attendance_student"),
+    path('profile_admin', HodViews.profile_admin, name="profile_admin"),
+    path('profile_admin_save', HodViews.profile_admin_save, name="profile_admin_save"),
+    path('admin_send_notification_staff', HodViews.admin_send_notification_staff, name="admin_send_notification_staff"),
+    path('admin_send_notification_student', HodViews.admin_send_notification_student, name="admin_send_notification_student"),
+    path('send_student_notification', HodViews.send_student_notification,name="send_student_notification"),
+    path('send_staff_notification', HodViews.send_staff_notification, name="send_staff_notification"),
+    path('liste_des_inscrits', HodViews.liste_des_inscrits, name="liste_des_inscrits"),
+    path('student_validation/', HodViews.student_validation, name='student_validation'),
+    path('approve_student/<int:student_id>/', HodViews.approve_student, name='approve_student'),
+    path('reject_student/<int:student_id>/', HodViews.reject_student, name='reject_student'),
+    path('paiement_validation/', HodViews.paiement_validation, name='paiement_validation'),
+    path('students_validated/', HodViews.students_validated, name='students_validated'),
+    path('detail_inscription/<int:inscription_id>/', HodViews.detail_inscription, name='detail_inscription'),
+    path('valider_transaction/<int:paiement_id>/', HodViews.valider_transaction, name='valider_transaction'),
+    path('refuser_transaction/<int:paiement_id>/', HodViews.refuser_transaction, name='refuser_transaction'),
+
+
+    #    Staffs url Path
+    path('staff_home', staffViews.staff_home, name="staff_home"),
+    path('staff_take_attendance', staffViews.staff_take_attendance, name="staff_take_attendance"),
+    path('staff_update_attendance', staffViews.staff_update_attendance, name="staff_update_attendance"),
+    path('get_students', staffViews.get_students, name="get_students"),
+    path('get_attendance_dates', staffViews.get_attendance_dates, name="get_attendance_dates"),
+    path('get_attendance_student', staffViews.get_attendance_student, name="get_attendance_student"),
+    path('save_attendance_data', staffViews.save_attendance_data, name="save_attendance_data"),
+    path('save_Updateattendance_data', staffViews.save_Updateattendance_data, name="save_Updateattendance_data"),
+    path('staff_apply_leave', staffViews.staff_apply_leave, name="staff_apply_leave"),
+    path('staff_apply_leave_save', staffViews.staff_apply_leave_save, name="staff_apply_leave_save"),
+    path('staff_feedback', staffViews.staff_feedback, name="staff_feedback"),
+    path('staff_feedback_save', staffViews.staff_feedback_save, name="staff_feedback_save"),
+    path('profile_staff', staffViews.profile_staff, name="profile_staff"),
+    path('profile_staff_save', staffViews.profile_staff_save, name="profile_staff_save"),
+    path('staff_fcmtoken_save', staffViews.staff_fcmtoken_save, name="staff_fcmtoken_save"),
+    path('staff_all_notification', staffViews.staff_all_notification, name="staff_all_notification"),
+    path('staff_add_result', staffViews.staff_add_result, name="staff_add_result"),
+    path('student_save_result', staffViews.student_save_result, name="student_save_result"),
+    path('edit_student_result', EditResultViewClass.as_view(), name="edit_student_result"),
+    path('student_result_fetch', staffViews.student_result_fetch, name="student_result_fetch"),
+
+    #Students url Path
+    path('student_home', studentViews.student_home, name="student_home"),
+    path('student_view_attendance', studentViews.student_view_attendance, name="student_view_attendance"),
+    path('student_view_attendance_post', studentViews.student_view_attendance_post, name="student_view_attendance_post"),
+    path('student_apply_leave', studentViews.student_apply_leave, name="student_apply_leave"),
+    path('student_apply_leave_save', studentViews.student_apply_leave_save, name="student_apply_leave_save"),
+    path('student_feedback', studentViews.student_feedback, name="student_feedback"),
+    path('student_feedback_save', studentViews.student_feedback_save, name="student_feedback_save"),
+    path('profile_student', studentViews.profile_student, name="profile_student"),
+    path('profile_student_save', studentViews.profile_student_save, name="profile_student_save"),
+    path('student_fcmtoken_save', studentViews.student_fcmtoken_save, name="student_fcmtoken_save"),
+    path('firebase-messaging-sw.js', views.showFirebaseJS,name="show_firebase_js"),
+    path('student_all_notification', studentViews.student_all_notification, name="student_all_notification"),
+    path('student_result_view', studentViews.student_result_view, name="student_result_view"),
+    path('inscription', studentViews.inscription, name="inscription"),
+    path('inscription/status', studentViews.inscription_status, name="student_inscription_status"),
+    path('student_profile/', studentViews.student_profile, name="student_profile"),
+    path('complete_profile/', studentViews.complete_profile, name="complete_profile"),
+    path('mes_inscriptions/', studentViews.mes_inscriptions, name="mes_inscriptions"),
+    path('effectuer_paiement/<int:inscription_id>/', studentViews.effectuer_paiement, name='effectuer_paiement'),
+    path('payer_inscription/<int:inscription_id>/', studentViews.payer_inscription, name='payer_inscription'),
+    path('generer-recu/<int:paiement_id>/', studentViews.generer_recu_pdf, name='generer_recu_pdf'),
+    path('telecharger_recu/<int:paiement_id>/', studentViews.generer_recu_pdf, name="generer_recu_pdf"),
+    path('mes_inscriptions/<int:inscription_id>/',studentViews.dossier_detail_student, name='dossier_detail'),
+    path('student_waiting_approval', studentViews.student_waiting_approval, name="student_waiting_approval"),
+    path('save_payment/<int:inscription_id>/', studentViews.save_payment, name="save_payment"),
+    path('mis_ajour_document/<int:inscription_id>/', studentViews.mis_ajour_document, name='mis_ajour_document'),
 
 ]
-
-# Ajoute ces lignes en dehors de urlpatterns
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

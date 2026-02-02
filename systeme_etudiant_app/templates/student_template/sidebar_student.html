@@ -1,26 +1,45 @@
 {% load static %}
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+
+<aside class="app-sidebar shadow"
+       style="background-color: #1e40af;"
+       data-bs-theme="dark">
+
   <!--begin::Sidebar Brand-->
-  <div class="sidebar-brand">
-    <!--begin::Brand Link-->
-    <a href="" class="brand-link">
-      <!--begin::Brand Image-->
-      <img
-        src="{% static 'dist/assets/img/AdminLTELogo.png' %}"
-        alt="AdminLTE Logo"
-        class="brand-image opacity-75 shadow"
-      >
-      <!--end::Brand Image-->
-      <!--begin::Brand Text-->
-      <span class="brand-text fw-light">AdminLTE 4</span>
-      <!--end::Brand Text-->
+  <div class="sidebar-brand" style="color: white; font-size: 1rem; margin-left: -100px;">
+    <a href="{% url 'staff_home' %}" class="brand-link">
+      <div class="d-flex align-items-center mb-2">
+        <img
+          src="{% static 'dist/assets/img/student.jpg' %}"
+          alt="AdminLTE Logo"
+          class="brand-image opacity-75 shadow me-2"
+          style="opacity: .8"
+        >
+        <span class="fw-light" style="color: white; font-size: 1rem; ">Étudiant(e)</span>
+      </div>
     </a>
-    <!--end::Brand Link-->
   </div>
   <!--end::Sidebar Brand-->
   <!--begin::Sidebar Wrapper-->
   <div class="sidebar-wrapper">
-    <nav class="mt-2">
+    <!-- User Panel -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex border-bottom">
+      <div class="image">
+        <img src="{% static 'dist/assets/img/Bamalang.jpg' %}"
+             alt="User Image"
+             class="rounded-circle elevation-2 me-2"
+             style="width: 30px; height: 30px; object-fit: cover;margin-left: 10px;">
+      </div>
+      <div class="info">
+        <a href="{% url 'profile_student' %}" class="d-block text-white text-decoration-none">
+          {{ user.username }}
+        </a>
+        <span class="fw-light" style="color: #c2c7d0; font-size: 0.8rem;">Admin</span>
+      </div>
+    </div>
+  <!--end::Sidebar Brand-->
+  <!--begin::Sidebar Wrapper-->
+  <div class="sidebar-wrapper">
+    <nav class="mt-2" style="color: white; font-size: 1rem; margin-left: -18px;" >
       <!--begin::Sidebar Menu-->
       <ul
         class="nav sidebar-menu flex-column"
@@ -31,7 +50,7 @@
         <li class="nav-item menu-open">
           {% url 'student_home' as student_home %}
           <a href="{{ student_home }}" class="nav-link {% if request.path == student_home %} active {% endif %}">
-            <i class="nav-icon bi bi-speedometer"></i>
+             <i class="nav-icon bi bi-house-door"></i>
             <p>
               Home
               <i class="nav-arrow bi bi-chevron-right"></i>
@@ -39,9 +58,106 @@
           
           </a>
         </li>
+        <li class="nav-item menu-open">
+          {% url 'student_profile' as student_profile %}
+          <a href="{{ student_profile }}" class="nav-link {% if request.path == student_profile %} active {% endif %}">
+            <i class="nav-icon bi bi-person-circle"></i>
+            <p>
+              Profile
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+        <!-- MENU ETUDIANT -->
+
+        <!-- Inscription -->
+        <li class="nav-item">
+            {% url 'student_waiting_approval' as url_student_waiting_approval%}
+            <a href="{{ student_waiting_approval }}"
+               class="nav-link {% if request.path == url_student_waiting_approval %} active {% endif %}">
+                <i class="nav-icon bi bi-check-circle"></i>
+                <span>Approuvez</span>
+            </a>
+        </li>
+                  <!-- MENU ETUDIANT -->
+
+        <!-- Inscription -->
+        <li class="nav-item">
+            {% url 'inscription' as url_inscription %}
+            <a href="{{ url_inscription }}"
+               class="nav-link {% if request.path == url_inscription %} active {% endif %}">
+                <i class="nav-icon bi bi-pencil-square"></i>
+                <span>S'inscrire</span>
+            </a>
+        </li>
+
+
+
+
+         <li class="nav-item menu-open">
+          {% url 'student_view_attendance' as student_view_attendance %}
+          <a href="{{ student_view_attendance }}" class="nav-link {% if request.path == student_view_attendance %} active {% endif %}">
+            <i class="nav-icon bi bi-eye me-2"></i>
+            <p>
+              View Attendance
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+
+        <li class="nav-item menu-open">
+          {% url 'student_apply_leave' as student_apply_leave %}
+          <a href="{{ student_apply_leave }}" class="nav-link {% if request.path == student_apply_leave %} active {% endif %}">
+             <i class="nav-icon bi bi-calendar-x"></i>
+            <p>
+             Apply For Leave
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'student_feedback' as student_feedback %}
+          <a href="{{ student_feedback }}" class="nav-link {% if request.path == student_feedback %} active {% endif %}">
+             <i class="nav-icon bi bi-chat-left-text"></i>
+            <p>
+              FeedBack Message
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+
+        <li class="nav-item menu-open">
+          {% url 'student_result_view' as student_result_view %}
+          <a href="{{ student_result_view }}" class="nav-link {% if request.path == student_result_view %} active {% endif %}">
+            <i class="nav-icon bi bi-card-checklist"></i>
+            <p>
+              Grade Card
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+
+        <li class="nav-item menu-open">
+          {% url 'student_all_notification' as student_all_notification %}
+          <a href="{{ student_all_notification }}" class="nav-link {% if request.path == student_all_notification %} active {% endif %}">
+            <i class="nav-icon bi bi-bell"></i>
+            <p>
+              Notification
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+
+          </a>
+        </li>
+
+
       </ul>
       <!--end::Sidebar Menu-->
     </nav>
   </div>
   <!--end::Sidebar Wrapper-->
-</aside>
+    </div>
+ </aside>

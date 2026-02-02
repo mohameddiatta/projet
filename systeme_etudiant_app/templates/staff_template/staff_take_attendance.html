@@ -1,10 +1,200 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'staff_template/base_template.html' %}
+
+{% block page_title %}
+Take Attendance
+{% endblock page_title %}
+{% block main_content %}
+ <section class="content">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <div class="container-flui">
+          <div class="row">
+            <div class="col-md-12">
+                <!--begin::Quick Example-->
+                <div class="card card-primary card-outline mb-4">
+                    <!--begin::Header-->
+                     <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                        <div class="card-title">Take Attendance</div>
+                    </div>
+                    <!--end::Header-->
+                    <!--begin::Form-->
+
+                        <!--begin::Body-->
+
+
+                            <div class="form-group">
+                               <label>Subject</label>
+                               <select class="form-control" name="subject" id="subject">
+                                 {% for subject in subjects %}
+                                 <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+                               {% endfor %}
+                               </select>
+                             </div>
+                             <div class="form-group">
+                                <label>Attendance Date</label>
+
+                                <input type="date" class="form-control" name="attendance_date" id="attendance_date">
+                             </div>
+
+                            <div class="form-group">
+                                <label>Session Year</label>
+                               <select class="form-control" name="session_year" id="session_year">
+                                   {% for session_year in session_years %}
+                                   <option Value="{{ session_year.id }}">{{ session_year.session_start_year }} TO {{ session_year.session_end_year }}</option>
+
+                               {% endfor %}
+                               </select>
+                            </div>
+
+                            <div class="form-group">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        {% if message.tags == 'success' %}
+                                            <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                                        {% endif %}
+                                        {% if message.tags == 'error' %}
+                                            <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                        <!--end::Body-->
+                        <!--begin::Footer-->
+                        <div class="card-footer mt-4">
+                            <button type="button" class="btn btn-primary btn-block" id="fetch_student">Fetch Student</button>
+                        </div>
+                        <form id="save_result_form">
+
+                        {% csrf_token %}
+                        <div id="student_data" class="card-footer">
+                            </div>
+                    </form>
+
+                    </div>
+                        <!--end::Footer-->
+
+                </div>
+                <!--end::Quick Example-->
+            </div>
+        </div>
+
+ </section>
+{% endblock main_content %}
+{% block custom_js %}
+<script>
+  $(document).ready(function(){
+    $("#fetch_student").click(function(e){
+        e.preventDefault(); // Empêche le rechargement de la page
+
+        var subject = $("#subject").val();
+        var session_year = $("#session_year").val();
+
+        // Vérification simple pour éviter d'envoyer des données vides
+        if (subject == "" || session_year == "") {
+            alert("Veuillez sélectionner un sujet et une année de session.") ;
+            return;
+        }
+
+        $.ajax({
+            url: '{% url "get_students" %}',
+            type: 'POST',
+            data: {
+                subject: subject,
+                session_year: session_year
+            },
+            dataType: 'json', // Indique à jQuery de transformer la réponse en objet JS automatiquement ;
+        })
+        .done(function(response){
+            // Puisque la vue renvoie JsonResponse, 'response' est déjà un tableau JS
+            var json_data = response ;
+
+            if (json_data.length > 0) {
+                var div_data = "<div class='form-group'><label>Liste des Étudiants :</label><div class='row'> " ;
+
+                for(key in json_data) {
+                    div_data += "<div class='col-lg-4'>";
+                    div_data += "<div class='form-check'>";
+                    div_data += "<input type='checkbox' checked='checked' name='student_data[]' value='" + json_data[key]['id'] + "' id='st" + json_data[key]['id'] + "'>";
+                    div_data += " <label class='form-check-label' for='st" + json_data[key]['id'] + "'>" + json_data[key]['name'] + "</label>";
+                    div_data += "</div></div>";
+                }
+
+                div_data += "</div></div>";
+
+                // On ajoute un bouton pour enregistrer après la liste
+                div_data += "<div class='form-group'>";
+                div_data += "<button id='save_attendance' class='btn btn-success btnblock' type='button'>Enregistrer la présence</button>";
+                div_data += "</div>";
+
+                $("#student_data").html(div_data);
+            } else {
+                $("#student_data").html("<div class='alert alert-warning'>Aucun étudiant trouvé pour cette sélection.</div>");
+            }
+        })
+        .fail(function(){
+            alert("Erreur lors de la récupération des étudiants.");
+        });
+    });
+});
+    // Utilisation de $(document).on car le bouton est créé dynamiquement
+$(document).on("click", "#save_attendance", function() {
+
+    $(this).attr("disabled", "disabled").text("Enregistrement en cours...");
+
+    var student_data = [];
+    // On récupère l'état de chaque checkbox (cochée ou non)
+    $("input[name='student_data[]']").each(function() {
+        student_data.push({
+            "id": $(this).val(),
+            "status": $(this).is(":checked") ? 1 : 0
+        });
+    });
+
+    // On récupère les autres infos nécessaires
+    var subject_id = $("#subject").val();
+    var session_year_id = $("#session_year").val();
+    var attendance_date = $("#attendance_date").val(); // Assurez-vous d'avoir cet ID dans votre HTML
+
+    if (attendance_date == "") {
+        alert("Veuillez sélectionner une date.");
+        $(this).removeAttr("disabled").text("Enregistrer la présence");
+        return;
+    }
+
+    // Conversion en JSON string pour correspondre à json.loads() dans Django
+    var student_ids = JSON.stringify(student_data);
+
+    $.ajax({
+        url: '{% url "save_attendance_data" %}',
+        type: 'POST',
+        data: {
+            student_ids: student_ids,
+            subject_id: subject_id,
+            session_year_id: session_year_id,
+            attendance_date: attendance_date
+        },
+    })
+    .done(function(response) {
+        if (response == "OK") {
+            alert("Présences enregistrées avec succès !");
+            location.reload();
+        } else {
+            alert("Erreur du serveur : " + response);
+            $("#save_attendance").removeAttr("disabled").text("Enregistrer la présence");
+        }
+    })
+    .fail(function() {
+        alert("Erreur lors de la communication avec le serveur.");
+        $("#save_attendance").removeAttr("disabled").text("Enregistrer la présence");
+    });
+});
+</script>
+
+{% endblock custom_js %}
+
+
+
+
+
+
+

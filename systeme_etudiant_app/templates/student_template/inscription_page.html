@@ -1,40 +1,499 @@
+quand je veux mettre a jours les dossier ca ne pass pas:
+non je me c ici:
+
 {% extends 'student_template/base_template.html' %}
 
-{% block page_title %}
-Inscription Étudiant
-{% endblock page_title %}
+{% block page_title %} Inscription Étudiant {% endblock page_title %}
 
 {% block main_content %}
+<section class="content">
+    <div class="container-fluid">
 
-<h3 class="mb-3">Formulaire d'inscription</h3>
-{% if messages %}
-{% for message in messages %}
-    <div
-        class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %} mt-2">
-        {{ message }}
+{% if student.status != 'approved' %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card {% if student.status == 'pending' %}card-warning{% else %}card-danger{% endif %}">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas {% if student.status == 'pending' %}fa-clock{% else %}fa-exclamation-circle{% endif %}"></i>
+                    Statut de votre dossier
+                </h3>
+            </div>
+            <div class="card-body text-center py-5">
+                {% if student.status == 'pending' %}
+                    <i class="fas fa-history fa-5x text-warning mb-4"></i>
+                    <h3 class="text-warning">⏳ Dossier en cours d'examen</h3>
+                    <p class="lead">L'administration vérifie vos informations. Vous recevrez un accès à l'inscription dès validation.</p>
+
+                {% elif student.status == 'rejected' %}
+                    <i class="fas fa-file-excel fa-5x text-danger mb-4"></i>
+                    <h3 class="text-danger">❌ Dossier rejeté ou incomplet</h3>
+
+                    <div class="alert alert-danger mt-3 mx-auto" style="max-width: 600px;">
+                        <h5>Motif du rejet :</h5>
+                        <p class="mb-0"><strong>{{ student.rejection_reason|default:"Aucun motif précisé. Veuillez contacter le support." }}</strong></p>
+                    </div>
+
+                    <p class="mt-4">Cliquez sur le bouton ci-dessous pour corriger vos informations et renvoyer votre dossier.</p>
+                    <a href="{% url 'student_profile' %}" class="btn btn-danger btn-lg">
+                        <i class="fas fa-edit"></i> Corriger mon profil & renvoyer
+                    </a>
+                {% endif %}
+            </div>
+        </div>
     </div>
-{% endfor %}
-{% endif %}
+</div>
 
-<form method="POST">
-    {% csrf_token %}
+{% else %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Formulaire d'inscription</h3>
+            </div>
 
-    <label>Choisir Filière :</label>
-    <select name="filiere" class="form-control" required>
-        <option value="">-- Sélectionner --</option>
-        {% for f in filieres %}
-            <option value="{{ f.ID_filiere }}">{{ f.get_Nom_filiere_display }}</option>
-        {% endfor %}
-    </select>
+            {% if messages %}
+            <div class="m-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-    <label class="mt-2">Choisir Niveau :</label>
-    <select name="niveau" class="form-control" required>
-        <option value="">-- Sélectionner --</option>
-        {% for n in niveaux %}
-            <option value="{{ n.id }}">{{ n.nom_niveau }}</option>
-        {% endfor %}
-    </select>
+            {% if is_already_registered %}
+            <!-- ZONE 1 : Message d'information avec lien de paiement -->
+            <div class="alert alert-success m-3">
+                <div class="d-flex align-items-center">
+                    <div class="mr-3">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1"><i class="fas fa-file-contract"></i> Inscription validée !</h5>
+                        <p class="mb-2">Votre dossier d'inscription a été accepté. Vous pouvez maintenant procéder au paiement.</p>
+                        <!-- LIEN VERS LE PAIEMENT - PRINCIPAL -->
+                        <a href="{% url 'payer_inscription' inscription_id %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-credit-card"></i> Accéder à la page de paiement
+                        </a>
+                        <p class="mt-2 mb-0 small text-muted">
+                            <i class="fas fa-info-circle"></i> Vous devez finaliser votre paiement pour valider définitivement votre inscription.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
-    <button type="submit" class="btn btn-primary mt-3">Valider inscription</button>
-</form>
+            {% if student.status == 'rejected' %}
+            <div class="alert alert-danger border-start border-4 shadow-sm mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-x-circle-fill fs-2 me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Dossier Incomplet / Rejeté</h5>
+                        <p class="mb-0"><strong>Motif :</strong> {{ student.rejection_reason }}</p>
+                    </div>
+                </div>
+                <hr>
+                <p class="small mb-0 text-dark">Veuillez modifier les informations ci-dessous, joindre le document manquant et valider à nouveau.</p>
+            </div>
+            {% endif %}
+
+            <form method="POST" id="inscriptionForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                    {% if not profile_complete %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-ban"></i> <strong>Profil incomplet !</strong>
+                        <a href="{% url 'student_profile' %}" class="btn btn-warning btn-sm ml-2">Compléter mon profil</a>
+                    </div>
+                    {% endif %}
+
+                    <h5 class="mb-4">Informations personnelles</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nom & Prénom</label>
+                                <input type="text" class="form-control bg-light" value="{{ user.last_name }} {{ user.first_name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>INE</label>
+                                <input type="text" class="form-control bg-light" value="{{ student_info.ine }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h5 class="mb-4">Choix académique</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Filière *</label>
+                                <select class="form-control select2" id="filiere" name="filiere" required {% if is_already_registered or not profile_complete %}disabled{% endif %}>
+                                    <option value=""> Sélectionner </option>
+                                    {% for f in filieres %}
+                                    <option value="{{ f.ID_filiere }}">{{ f.get_Nom_filiere_display }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Niveau *</label>
+                                <select class="form-control select2" id="niveau" name="niveau" required {% if is_already_registered or not profile_complete %}disabled{% endif %}>
+                                    <option value=""> Sélectionner </option>
+                                    {% for n in niveaux %}
+                                    <option value="{{ n.id }}">{{ n.nom_niveau }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                    <label class="font-weight-bold"><i class="fas fa-file-upload"></i> Documents justificatifs (4/4 requis)</label>
+                    <small class="text-danger d-block"><i class="fas fa-exclamation-triangle"></i> Tous les documents sont obligatoires pour valider l'inscription.</small>
+
+                    <div class="custom-file mb-2">
+                        <input type="file" name="diplome" class="custom-file-input" id="diplome" accept=".pdf,.jpg,.png" required>
+                        <label class="custom-file-label" for="diplome">Diplôme ou Atestation.</label>
+                    </div>
+
+                    <div class="custom-file mb-2">
+                        <input type="file" name="releve_notes" class="custom-file-input" id="releve_notes" accept=".pdf,.jpg,.png" required>
+                        <label class="custom-file-label" for="releve_notes">Sélectionner le Relevé de notes...</label>
+                    </div>
+
+                    <div class="custom-file mb-2">
+                        <input type="file" name="piece_identite" class="custom-file-input" id="piece_identite" accept=".pdf,.jpg,.png" required>
+                        <label class="custom-file-label" for="piece_identite">Sélectionner la Pièce d'identité...</label>
+                    </div>
+
+                    <div class="custom-file mb-2">
+                        <input type="file" name="photo" class="custom-file-input" id="photo" accept=".jpg,.jpeg,.png" required>
+                        <label class="custom-file-label" for="photo">Sélectionner la Photo d'identité...</label>
+                    </div>
+
+
+                </div>
+
+                        {% if is_already_registered %}
+                        <div class="mt-3">
+                            <label class="text-success">
+                                <i class="fas fa-check-circle"></i> Fichiers enregistrés :
+                            </label>
+
+                            <div class="d-flex flex-wrap">
+                                <!-- 1. Diplôme -->
+                                {% if inscription.diplome %}
+                                    <a href="{{ inscription.diplome.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-2">
+                                        <i class="fas fa-file-pdf"></i> Diplôme
+                                    </a>
+                                {% else %}
+                                    <span class="btn btn-outline-danger btn-sm me-2 mb-2">
+                                        <i class="fas fa-times-circle"></i> Diplôme manquant
+                                    </span>
+                                {% endif %}
+
+                                <!-- 2. Relevé de notes -->
+                                {% if inscription.releve_notes %}
+                                    <a href="{{ inscription.releve_notes.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-2">
+                                        <i class="fas fa-file-invoice"></i> Relevé
+                                    </a>
+                                {% else %}
+                                    <span class="btn btn-outline-danger btn-sm me-2 mb-2">
+                                        <i class="fas fa-times-circle"></i> Relevé manquant
+                                    </span>
+                                {% endif %}
+
+                                <!-- 3. Pièce d'identité -->
+                                {% if inscription.piece_identite %}
+                                    <a href="{{ inscription.piece_identite.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-2">
+                                        <i class="fas fa-id-card"></i> CNI/Passeport
+                                    </a>
+                                {% else %}
+                                    <span class="btn btn-outline-danger btn-sm me-2 mb-2">
+                                        <i class="fas fa-times-circle"></i> CNI manquant
+                                    </span>
+                                {% endif %}
+
+                                <!-- 4. Photo -->
+                                {% if inscription.photo %}
+                                    <a href="{{ inscription.photo.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-2">
+                                        <i class="fas fa-camera"></i> Photo
+                                    </a>
+                                {% else %}
+                                    <span class="btn btn-outline-danger btn-sm me-2 mb-2">
+                                        <i class="fas fa-times-circle"></i> Photo manquante
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Indicateur simple -->
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-files"></i>
+                                    Documents :
+                                    <span class="badge
+                                        {% if inscription.diplome and inscription.releve_notes and inscription.piece_identite and inscription.photo %}
+                                            bg-success
+                                        {% else %}
+                                            bg-warning
+                                        {% endif %}">
+                                        {% if inscription.diplome %}D{% else %}-{% endif %}
+                                        {% if inscription.releve_notes %}R{% else %}-{% endif %}
+                                        {% if inscription.piece_identite %}C{% else %}-{% endif %}
+                                        {% if inscription.photo %}P{% else %}-{% endif %}
+                                    </span>
+                                    (D=Diplôme, R=Relevé, C=CNI, P=Photo)
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- ZONE 2 : Section de paiement si déjà inscrit -->
+                        {% if is_already_registered %}
+                        <hr>
+                        <div class="card card-success">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-credit-card"></i> Paiement de l'inscription</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5>Finalisez votre inscription</h5>
+                                        <p class="text-muted">
+                                            Votre dossier académique est accepté. Le paiement des frais d'inscription
+                                            est requis pour finaliser votre inscription.
+                                        </p>
+                                        <div class="mb-3">
+                                            <span class="badge badge-info">Montant à payer :</span>
+                                            <span class="h4 text-success ml-2">
+                                                {% if inscription.montant_total %}
+                                                    {{ inscription.montant_total|floatformat:0 }} FCFA
+                                                {% else %}
+                                                    À déterminer
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <!-- LIEN VERS LE PAIEMENT - SECONDAIRE -->
+                                        <a href="{% url 'effectuer_paiement' inscription_id %}" class="btn btn-success btn-lg">
+                                            <i class="fas fa-lock"></i> Payer maintenant
+                                        </a>
+                                        <p class="small mt-2">
+                                            <i class="fas fa-shield-alt"></i> Paiement sécurisé
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-footer">
+                        {% if is_already_registered %}
+                            <!-- ZONE 3 : Bouton de paiement dans le footer -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle"></i> Inscription soumise
+                                    </span>
+                                    <small class="d-block text-muted">
+                                        Dernière mise à jour :
+                                        {% if inscription.date_inscription %}
+                                            {{ inscription.date_inscription|date:"d/m/Y" }}
+                                        {% else %}
+                                            Aujourd'hui
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="{% url 'payer_inscription' inscription_id %}" class="btn btn-success btn-lg">
+                                        <i class="fas fa-credit-card"></i> Finaliser le paiement
+                                    </a>
+                                </div>
+                            </div>
+                        {% elif profile_complete %}
+                            <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-paper-plane"></i> Soumettre l'inscription</button>
+                        {% else %}
+                            <button type="button" class="btn btn-danger btn-lg disabled"><i class="fas fa-ban"></i> Profil incomplet</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-info">
+                <div class="card-header"><h3 class="card-title">Résumé du statut</h3></div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <strong>Compte :</strong> <span class="badge badge-success">Approuvé</span><br>
+                        <strong>Inscription :</strong>
+                        {% if is_already_registered %}
+                            <span class="badge badge-primary">Effectuée</span>
+                            <div class="mt-3">
+                                <i class="fas fa-file-alt fa-2x text-info mb-2"></i>
+                                <p class="mb-2">Votre dossier est enregistré</p>
+                                <!-- LIEN VERS LE PAIEMENT - PANEL LATÉRAL -->
+                                <a href="{% url 'payer_inscription' inscription_id %}" class="btn btn-success btn-block">
+                                    <i class="fas fa-arrow-right"></i> Étape suivante : Paiement
+                                </a>
+                            </div>
+                        {% else %}
+                            <span class="badge badge-warning">Non faite</span>
+                            <div class="mt-3">
+                                <i class="fas fa-clipboard-list fa-2x text-warning mb-2"></i>
+                                <p>Complétez le formulaire pour continuer</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Barre de progression -->
+                    {% if is_already_registered %}
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                            Inscription
+                        </div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                            Paiement
+                        </div>
+                    </div>
+                    <p class="small text-muted">
+                        <i class="fas fa-info-circle"></i> Étape 2/2 : Finalisez votre paiement
+                    </p>
+                    {% endif %}
+
+                    <a href="{% url 'student_profile' %}" class="btn btn-outline-info btn-block btn-sm">Gérer mon profil</a>
+
+                    <!-- ZONE 4 : Quick links -->
+                    {% if is_already_registered %}
+                    <div class="mt-4 border-top pt-3">
+                        <h6><i class="fas fa-bolt"></i> Accès rapide</h6>
+                        <div class="list-group">
+                            <a href="{% url 'payer_inscription' inscription_id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-credit-card mr-2"></i> Page de paiement
+                            </a>
+                            <a href="{% url 'mes_inscriptions' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-history mr-2"></i> Mes inscriptions
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ZONE 5 : Bannière de paiement fixe en bas -->
+            {% if is_already_registered %}
+            <div class="card card-success mt-3">
+                <div class="card-body text-center">
+                    <h5 class="mb-2"><i class="fas fa-clock"></i> Paiement en attente</h5>
+                    <p class="small mb-3">Votre inscription sera confirmée après paiement</p>
+                    <!-- LIEN VERS LE PAIEMENT - BANNIÈRE -->
+                    <a href="{% url 'payer_inscription' inscription_id %}" class="btn btn-success btn-block">
+                        <i class="fas fa-lock"></i> Payer maintenant
+                    </a>
+                    <p class="small text-muted mt-2">
+                        <i class="fas fa-shield-alt"></i> Transaction 100% sécurisée
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+ </div>
+</section>
 {% endblock main_content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    const IS_DISABLED = {{ is_already_registered|yesno:"true,false" }} || !{{ profile_complete|yesno:"true,false" }};
+
+    if ($.fn.select2) {
+        $('.select2').select2({ theme: 'bootstrap4' });
+    }
+
+    $('.custom-file-input').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    });
+
+    $('#inscriptionForm').on('submit', function(e) {
+        // 1. Vérification du verrou global
+        if (IS_DISABLED) {
+            e.preventDefault();
+            toastr.error("Action impossible : vérifiez votre statut ou votre profil.");
+            return false;
+        }
+
+        // 2. Vérification dynamique de TOUS les fichiers
+        let sizeLimit = 5 * 1024 * 1024; // 5MB
+        let isValid = true;
+
+        $(this).find('input[type="file"]').each(function() {
+            if (this.files && this.files[0]) {
+                if (this.files[0].size > sizeLimit) {
+                    alert(`Le fichier "${this.files[0].name}" est trop lourd (Max 5MB)`);
+                    isValid = false;
+                    return false;
+                }
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            return false;
+        }
+
+        // 3. Confirmation finale et blocage du double-clic
+        if (confirm('Confirmez-vous la soumission de votre dossier ?')) {
+            const btn = $(this).find('button[type="submit"]');
+            btn.prop('disabled', true)
+               .html('<i class="fas fa-spinner fa-spin"></i> Envoi en cours...');
+            return true;
+        }
+
+        return false;
+    });
+
+    // Animation pour le bouton de paiement
+    $('.btn-success').hover(
+        function() {
+            $(this).find('i').addClass('fa-beat');
+        },
+        function() {
+            $(this).find('i').removeClass('fa-beat');
+        }
+    );
+
+    // Notification pour le paiement
+    {% if is_already_registered %}
+    setTimeout(function() {
+        if (!localStorage.getItem('paymentReminderShown')) {
+            toastr.info('📢 Votre inscription est validée ! N\'oubliez pas de finaliser votre paiement.', 'Paiement en attente', {
+                timeOut: 8000,
+                closeButton: true
+            });
+            localStorage.setItem('paymentReminderShown', 'true');
+        }
+    }, 2000);
+    {% endif %}
+});
+    document.querySelectorAll('.custom-file-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+            let fileName = this.files[0].name;
+            let label = this.nextElementSibling;
+            label.innerText = fileName;
+            // On change la couleur pour montrer que c'est ok
+            label.style.borderColor = "#28a745";
+        });
+    });
+</script>
+{% endblock custom_js %}

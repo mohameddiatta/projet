@@ -1,0 +1,25 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Password reset on 127.0.0.1:8000
+From: webmaster@localhost
+To: abdoulaye@gmail.com
+Date: Thu, 30 Oct 2025 07:44:58 -0000
+Message-ID: <176181029848.3052.11531092034473182033@SIDYMOHAMEDDIATTA.lan>
+
+
+You're receiving this email because you requested a password reset for your user account at 127.0.0.1:8000.
+
+Please go to the following page and choose a new password:
+
+http://127.0.0.1:8000/accounts/reset/MzY/cyh6uy-b2b1055b356c16e7396d2d52fed8c5f2/
+
+In case you’ve forgotten, you are: Mboudia
+
+Thanks for using our site!
+
+The 127.0.0.1:8000 team
+
+
+
+-------------------------------------------------------------------------------

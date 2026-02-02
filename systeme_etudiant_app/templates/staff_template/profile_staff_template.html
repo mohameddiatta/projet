@@ -1,11 +1,10 @@
-{% extends 'hod_template/base_template.html' %}
+{% extends 'staff_template/base_template.html' %}
+{% load static %}
 {% block page_title %}
 Edit Profile
 {% endblock page_title %}
 {% block main_content %}
 
-<!--begin::App Content Header-->
-<!--end::App Content Header-->
 <!--begin::App Content-->
 <div class="app-content">
     <!--begin::Container-->
@@ -15,52 +14,76 @@ Edit Profile
                 <!--begin::Quick Example-->
                 <div class="card card-primary card-outline mb-4">
                     <!--begin::Header-->
-                     <div class="card-header bg-primary text-white">
-                        <div class="card-title">Edit Profile</div>
+                    <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                        <div class="card-title">Modifier le Profil</div>
                     </div>
                     <!--end::Header-->
                     <!--begin::Form-->
-                    <form action="{% url 'profile_staff_save' %}"  method="post">
+                    <form action="{% url 'profile_staff_save' %}" method="post">
                         {% csrf_token %}
-                        {{ form.as_p }}
                         <!--begin::Body-->
                         <div class="card-body">
+                            <!-- Champ Username (lecture seule) -->
                             <div class="mb-3">
-                                <label>Username</label>
-                                <input type="text" class="form-control" name="username" value="{{ user.username }}" disabled="disabled"  required>
-                                <div id="usernameHelp" class="form-text"></div>
-                            </div>
-                            <div class="mb-3">
-                                <label>Email</label>
-                                <input type="text" class="form-control" name="email" value="{{ user.email }}" disabled="disabled"   required>
-                                <div id="emailHelp" class="form-text"></div>
-                            </div>
-                            <div class="mb-3">
-                                <label>First Name</label>
-                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}"   required>
-                                <div id="first_nameHelp" class="form-text"></div>
-                            </div>
-                            <div class="mb-3">
-                                <label>Last Name</label>
-                                <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}"  required>
-                                <div id="last_nameHelp" class="form-text"></div>
-                            </div>
-                             </div>
-                            <div class="mb-3">
-                                <label>Change Password</label>
-                                <input type="text" class="form-control" name="password" placeholder="file oly if you want to change password"  required>
-                                <div id="passwordHelp" class="form-text"></div>
+                                <label class="form-label">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                <div class="form-text">Le nom d'utilisateur ne peut pas être modifié</div>
                             </div>
 
+                            <!-- Champ Email (lecture seule) -->
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                <div class="form-text">L'email ne peut pas être modifié</div>
+                            </div>
 
+                            <!-- Champ Prénom -->
+                            <div class="mb-3">
+                                <label class="form-label">Prénom</label>
+                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                                <div class="form-text">Votre prénom</div>
+                            </div>
+
+                            <!-- Champ Nom -->
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                                <div class="form-text">Votre nom de famille</div>
+                            </div>
+
+                            <!-- Champ Adresse -->
+                            <div class="mb-3">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" class="form-control" name="address" value="{{ staff.address }}" required>
+                                <div class="form-text">Votre adresse complète</div>
+                            </div>
+
+                            <!-- Champ Mot de passe -->
+                            <div class="mb-3">
+                                <label class="form-label">Changer le mot de passe</label>
+                                <input type="password" class="form-control" name="password" placeholder="Remplir uniquement si vous voulez changer le mot de passe">
+                                <div class="form-text">Laissez vide pour conserver le mot de passe actuel</div>
+                            </div>
+
+                            <!-- Messages -->
                             <div class="form-group">
                                 {% if messages %}
                                     {% for message in messages %}
                                         {% if message.tags == 'success' %}
-                                            <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
-                                        {% endif %}
-                                        {% if message.tags == 'error' %}
-                                            <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                            <div class="alert alert-success alert-dismissible fade show" style="margin-top:10px">
+                                                {{ message }}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                            </div>
+                                        {% elif message.tags == 'error' %}
+                                            <div class="alert alert-danger alert-dismissible fade show" style="margin-top:10px">
+                                                {{ message }}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                            </div>
+                                        {% elif message.tags == 'info' %}
+                                            <div class="alert alert-info alert-dismissible fade show" style="margin-top:10px">
+                                                {{ message }}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                            </div>
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -69,7 +92,12 @@ Edit Profile
                         <!--end::Body-->
                         <!--begin::Footer-->
                         <div class="card-footer">
-                            <button type="submit" class="btn btn-primary btn-block">Save profile</button>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                            </button>
+                            <a href="{% url 'staff_home' %}" class="btn btn-secondary btn-block mt-2">
+                                <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+                            </a>
                         </div>
                         <!--end::Footer-->
                     </form>

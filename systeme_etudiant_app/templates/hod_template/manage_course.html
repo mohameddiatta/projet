@@ -1,6 +1,6 @@
 {% extends 'hod_template/base_template.html' %}
 {% block page_title %}
-Manage Course
+
 {% endblock page_title %}
 {% block main_content %}
 
@@ -10,6 +10,10 @@ Manage Course
 <div class="app-content">
     <!--begin::Container-->
     <div class="container-fluid">
+        <div class="pagetitle">
+                <h3> Manage Course</h3>
+
+            </div>
    <main id="main" class="main">
 
     <div class="pagetitle">
@@ -20,8 +24,8 @@ Manage Course
       <div class="row">
         <div class="col-lg-12">
 
-          <div class="card">
-            <div class="card-body">
+          <div class="card card-primary card-outline mb-4">
+        <div class="card-body" >
 
               <!-- Table with stripped rows -->
               <table class="table datatable">
@@ -38,7 +42,7 @@ Manage Course
                   <tr>
                     <td>{{ course.id }}</td>
                     <td>{{ course.course_name }}</td>
-                    <td><a href="/edit_course/{{ course.admin.id }}" class="=btn btn-success">Edit</a></td>
+                    <td><a href="/edit_course/{{ course.admin.id }}" class="btn btn-success btn-sm">Edit</a></td>
                   </tr>
                 {% endfor %}
                 </tbody>

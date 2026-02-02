@@ -1,10 +1,221 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'hod_template/base_template.html' %}
+{% load custom_filters %}
+
+{% block page_title %}Validation des étudiants{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="bi bi-person-check me-2"></i>Inscriptions en attente</h4>
+                    <span class="badge bg-light text-primary fs-6">{{ total_pending }} dossier(s)</span>
+                </div>
+
+                <div class="card-body p-0">
+                    {% if pending_students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="20%">Étudiant</th>
+                                    <th width="20%">INE & Contact</th>
+                                    <th width="15%">Date d'inscription</th>
+                                    <th width="30%" class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in pending_students %}
+                                <tr class="{% if forloop.counter|divisibleby:2 %}table-light{% endif %}">
+                                    <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if student.admin.profile_pic %}
+                                            <img src="{{ student.admin.profile_pic.url }}"
+                                                 class="rounded-circle me-3 border border-2"
+                                                 style="width: 48px; height: 48px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
+                                                 style="width: 48px; height: 48px;">
+                                                <i class="bi bi-person-fill text-white fs-5"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                            <div>
+                                                <strong class="d-block">{{ student.admin.get_full_name|default:student.admin.first_name }}</strong>
+                                                <small class="text-muted">{{ student.admin.email }}</small>
+                                            </div>
+
+                                    </td>
+                                    <td>
+                                        <div class="mb-1">
+                                            <small class="text-muted">INE:</small><br>
+                                            <strong class="text-primary">{{ student.address|extract_ine|default:"Non renseigné" }}</strong>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Téléphone:</small><br>
+                                            <span>{{ student.address|extract_telephone|default:"Non renseigné" }}</span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="text-center">
+                                            <div class="fw-bold">{{ student.created_at|date:"d/m/Y" }}</div>
+                                            <small class="text-muted">{{ student.created_at|date:"H:i" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <form method="POST" action="{% url 'approve_student' student.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm px-3" onclick="return confirm('Confirmez-vous la validation de cet étudiant ?')">
+                                                    <i class="bi bi-check-circle me-1"></i> Valider
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-outline-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#rejectModal{{ student.id }}">
+                                                <i class="bi bi-x-circle me-1"></i> Rejeter
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <i class="bi bi-check-circle-fill display-1 text-success"></i>
+                        </div>
+                        <h4 class="text-secondary mb-3">Aucune inscription en attente</h4>
+                        <p class="text-muted">Tous les dossiers ont été traités.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+{% for student in pending_students %}
+<!-- Documents Modal -->
+<div class="modal fade" id="docsModal{{ student.id }}" tabindex="-1" aria-labelledby="docsModalLabel{{ student.id }}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-folder2-open me-2"></i>
+                    Dossier de {{ student.admin.get_full_name|default:student.admin.first_name }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6 class="border-bottom pb-2">Informations de l'étudiant</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email :</strong> {{ student.admin.email }}</p>
+                            <p><strong>INE :</strong> {{ student.address|extract_ine|default:"Non renseigné" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Téléphone :</strong> {{ student.address|extract_telephone|default:"Non renseigné" }}</p>
+                            <p><strong>Inscription le :</strong> {{ student.created_at|date:"d/m/Y à H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="border-bottom pb-2">Documents fournis</h6>
+                {% with student.inscription_set.all|first as inscription %}
+                    {% if inscription and inscription.document_set.all %}
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        {% for doc in inscription.document_set.all %}
+                        <div class="col">
+                            <div class="card border h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-file-earmark-pdf text-danger fs-4 me-2"></i>
+                                        <h6 class="card-title mb-0">{{ doc.Nom_Document }}</h6>
+                                    </div>
+                                    <p class="card-text text-muted small mb-3">
+                                        Ajouté le {{ doc.date_depot|date:"d/m/Y" }}
+                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{{ doc.Chemin_Fichier.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i> Voir
+                                        </a>
+                                        <a href="{{ doc.Chemin_Fichier.url }}" download class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-download me-1"></i> Télécharger
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Aucun document disponible pour cet étudiant.
+                    </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal{{ student.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ student.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Rejeter le dossier
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'reject_student' student.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted mb-3">
+                        Vous êtes sur le point de rejeter le dossier de
+                        <strong>{{ student.admin.get_full_name|default:student.admin.first_name }}</strong>.
+                        Veuillez indiquer le motif du rejet :
+                    </p>
+                    <div class="mb-3">
+                        <label for="rejection_reason{{ student.id }}" class="form-label fw-bold">Motif du rejet *</label>
+                        <textarea name="rejection_reason" id="rejection_reason{{ student.id }}"
+                                  class="form-control" rows="4" required
+                                  placeholder="Exemple : Document INE manquant ou illisible, dossier incomplet..."></textarea>
+                        <div class="form-text">Ce motif sera communiqué à l'étudiant.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle me-1"></i> Confirmer le rejet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

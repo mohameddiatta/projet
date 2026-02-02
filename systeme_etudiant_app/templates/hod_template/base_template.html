@@ -1,11 +1,16 @@
 {% load static %}
-<!doctype html>
+
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Systeme | Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AdminLTE Dashboard basé sur Bootstrap 5" />
+  <title>{% block title %}Systeme | Dashboard{% endblock %}</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons (UNE SEULE FOIS) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" />
 
   <!-- Fonts -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" />
@@ -13,20 +18,34 @@
   <!-- OverlayScrollbars -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
 
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" />
-
   <!-- AdminLTE -->
   <link rel="stylesheet" href="{% static 'dist/css/adminlte.css' %}">
-
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Apexcharts + JSVectormap -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 
   <!-- Fix scroll overflow -->
   <style>
     body {
       overflow-x: hidden;
+    }
+
+    /* Style pour s'assurer que les icônes s'affichent correctement */
+    .nav-icon {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+      margin-right: 10px;
+    }
+
+    /* Correction pour l'alignement des icônes dans la sidebar */
+    .nav-link {
+      display: flex;
+      align-items: center;
     }
   </style>
 
@@ -34,65 +53,61 @@
   {% endblock custom_css %}
 </head>
 
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-  <div class="app-wrapper">
-    <!-- Header -->
-    <nav class="app-header navbar navbar-expand bg-body">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <!-- 🔧 Le bouton menu toggle ne redirige plus vers /logout_user -->
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-              <i class="bi bi-list"></i>
-            </a>
-          </li>
-        </ul>
-    
+  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <!--begin::Header-->
+      <nav class="app-header navbar navbar-expand bg-body">
+        <!--begin::Container-->
+        <div class="container-fluid">
+          <!--begin::Start Navbar Links-->
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <i class="bi bi-list"></i>
+              </a>
+            </li>
+
+          </ul>
         <h3 class="m-0 text-truncate" style="max-width: 70vw;">
-          Système de Gestion Étudiant - HOD
+          Système de Gestion Étudiant - Administrateur Principal
         </h3>
-    
+
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <!-- ✅ Seul ce lien déconnecte -->
-            <a class="nav-link" href="/logout_user">Logout</a>
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
         </ul>
       </div>
     </nav>
-    
 
-    <!-- Sidebar -->
-    {% include 'hod_template/sidebar_template.html' with user=user %}
+
+<!-- Sidebar -->
+{% include 'hod_template/sidebar_template.html' with user=user id=id %}
 
     <!-- Main content -->
-    <div class="app-main">
-      <!-- Page title & Breadcrumb -->
-      <section class="app-content-header py-3">
-        <div class="container-fluid">
-          <div class="row mb-1">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h1 class="m-0 text-dark">{% block page_title %}{% endblock page_title %}</h1>
-              <div>
-                <ol class="breadcrumb float-sm-end">
-                  <li class="breadcrumb-item"><a href="{% url 'demo_page' %}">Home</a></li>
-                </ol>
-              </div>
-            </div>
-          </div>
+<div class="app-main">
+  <section class="app-content-header pt-2 pb-0">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-sm-6">
+          <h1 class="m-0 text-dark" style="font-size: 1.5rem;">{% block page_title %}{% endblock page_title %}</h1>
         </div>
-      </section>
-
-    
-
-      <!-- Page content -->
-      <section class="app-content">
-        <div class="container-fluid">
-          {% block main_content %}
-          {% endblock main_content %}
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-end">
+            <li class="breadcrumb-item"><a href="{% url 'admin_home' %}">Home</a></li>
+          </ol>
         </div>
-      </section>
+      </div>
     </div>
+  </section>
+
+  <section class="app-content pt-2"> <div class="container-fluid">
+      {% block main_content %}
+      {% endblock main_content %}
+    </div>
+  </section>
+</div>
 
     <!-- Footer -->
     {% include 'hod_template/footer.html' %}

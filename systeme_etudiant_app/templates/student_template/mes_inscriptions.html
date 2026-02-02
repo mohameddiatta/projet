@@ -1,75 +1,204 @@
 {% extends 'student_template/base_template.html' %}
+{% load static %}
 
-{% block page_title %}Mes Inscriptions{% endblock %}
+{% block page_title %} Mes Inscriptions {% endblock %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">Mes Inscriptions</h3>
-                </div>
-                <div class="card-body">
-                    {% if inscriptions %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Filière</th>
-                                    <th>Niveau</th>
-                                    <th>Date d'inscription</th>
-                                    <th>Montant total</th>
-                                    <th>Montant payé</th>
-                                    <th>Reste à payer</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for inscription in inscriptions %}
-                                <tr>
-                                    <td>{{ inscription.filiere.get_Nom_filiere_display }}</td>
-                                    <td>{{ inscription.niveau.nom_niveau }}</td>
-                                    <td>{{ inscription.date_inscription|date:"d/m/Y" }}</td>
-                                    <td>{{ inscription.montant_total }} FCFA</td>
-                                    <td>{{ inscription.montant_valide }} FCFA</td>
-                                    <td>{{ inscription.reste_a_payer }} FCFA</td>
-                                    <td>
-                                        {% if inscription.reste_a_payer <= 0 %}
-                                            <span class="badge bg-success">Payée</span>
-                                        {% elif inscription.montant_valide > 0 %}
-                                            <span class="badge bg-warning">Partiel</span>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-alt"></i> Mes inscriptions
+                        </h3>
+                    </div>
+
+                    <div class="card-body">
+                        {% if inscriptions_data %}
+                            {% for data in inscriptions_data %}
+                            <div class="card mb-4 {% if data.inscription.statut == 'approuvé' %}border-success{% elif data.inscription.statut == 'rejeté' %}border-danger{% else %}border-warning{% endif %}">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-invoice"></i>
+                                            Inscription #{{ data.inscription.id }}
+                                        </h5>
+                                        <small class="text-muted">
+                                            {{ data.inscription.date_inscription|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        {% if data.inscription.statut == 'approuvé' %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check-circle"></i> Approuvé
+                                            </span>
+                                        {% elif data.inscription.statut == 'rejeté' %}
+                                            <span class="badge badge-danger">
+                                                <i class="fas fa-times-circle"></i> Rejeté
+                                            </span>
                                         {% else %}
-                                            <span class="badge bg-danger">À payer</span>
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-clock"></i> En attente
+                                            </span>
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if inscription.reste_a_payer > 0 %}
-                                            <a href="{% url 'payer_inscription_detail' inscription.id %}" 
-                                               class="btn btn-sm btn-primary">
-                                                <i class="fas fa-credit-card"></i> Payer
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <!-- Informations académiques -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <h6><i class="fas fa-graduation-cap"></i> Filière</h6>
+                                            <p class="mb-0">
+                                                <span class="badge bg-success">
+                                                    {{ data.inscription.filiere.get_Nom_filiere_display }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h6><i class="fas fa-layer-group"></i> Niveau</h6>
+                                            <p class="mb-0">
+                                                <span class="badge bg-success">
+                                                    {{ data.inscription.niveau.nom_niveau }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4">
+                                        <h6 class="text-muted">
+                                            <i class="fas fa-money-bill-wave text-success"></i> Montant total
+                                        </h6>
+                                        <p class="mb-0 h5 fw-bold text-dark">
+                                            {{ data.inscription.montant_total|floatformat:0 }} FCFA
+                                        </p>
+                                    </div>
+
+                                    </div>
+
+                                    <!-- Documents -->
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <h6><i class="fas fa-paperclip"></i> Documents fournis</h6>
+                                            <div class="d-flex flex-wrap">
+                                                {% for doc in data.documents %}
+                                                <div class="mr-3 mb-2 text-center">
+                                                    {% if doc.present %}
+                                                        <a href="{{ doc.url }}" target="_blank"
+                                                           class="btn btn-outline-success btn-sm"
+                                                           title="Voir {{ doc.nom }}">
+                                                            <i class="{{ doc.icone }} fa-2x"></i>
+                                                        </a>
+                                                        <div class="small text-success">{{ doc.nom }}</div>
+                                                    {% else %}
+                                                        <span class="btn btn-outline-danger btn-sm"
+                                                              title="{{ doc.nom }} manquant">
+                                                            <i class="{{ doc.icone }} fa-2x"></i>
+                                                        </span>
+                                                        <div class="small text-danger">{{ doc.nom }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+
+                                            <!-- Résumé des documents -->
+                                            <div class="alert {% if data.dossier_complet %}alert-success{% else %}alert-warning{% endif %} mt-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <i class="fas fa-chart-pie"></i>
+                                                        {{ data.nombre_documents_presents }}/{{ data.nombre_documents }} documents
+                                                        ({{ data.pourcentage_documents|floatformat:0 }}%)
+                                                    </div>
+                                                    <div>
+                                                        {% if not data.dossier_complet %}
+                                                            <span class="text-danger">
+                                                                Manque : {{ data.documents_manquants|join:", " }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="text-success">
+                                                                <i class="fas fa-check-circle"></i> Dossier complet
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Informations financières -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <div class="info-box bg-success">
+                                                <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Payé</span>
+                                                    <span class="info-box-number">{{ data.montant_valide|floatformat:0 }} FCFA</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-box bg-warning">
+                                                <span class="info-box-icon"><i class="fas fa-clock"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Reste à payer</span>
+                                                    <span class="info-box-number">{{ data.reste_a_payer|floatformat:0 }} FCFA</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-box bg-info">
+                                                <span class="info-box-icon"><i class="fas fa-percentage"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Progression</span>
+                                                    <span class="info-box-number">{{ data.pourcentage|floatformat:1 }}%</span>
+                                                    <div class="progress">
+                                                        <div class="progress-bar" style="width: {{ data.pourcentage }}%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a href="{% url 'dossier_detail' data.inscription.id %}"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> Voir détails
                                             </a>
-                                        {% endif %}
-                                        <a href="#" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> Voir
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                            {% if data.inscription.statut == 'rejeté' %}
+                                                <a href="{% url 'student_inscription' %}"
+                                                   class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Corriger le dossier
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            {% if data.inscription.statut == 'approuvé' and data.reste_a_payer > 0 %}
+                                                <a href="{% url 'payer_inscription' data.inscription.id %}"
+                                                   class="btn btn-success">
+                                                    <i class="fas fa-credit-card"></i> Payer maintenant
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                                <h4 class="text-muted">Aucune inscription</h4>
+                                <p>Vous n'avez pas encore soumis de demande d'inscription.</p>
+                                <a href="{% url 'inscription' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Créer une inscription
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        Vous n'avez pas encore d'inscription.
-                        <a href="{% url 'inscription' %}" class="alert-link">S'inscrire maintenant</a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}

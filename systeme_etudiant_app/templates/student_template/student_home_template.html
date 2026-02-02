@@ -1,10 +1,202 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'student_template/base_template.html' %}
+{% load static %}
+
+{% block page_title %} Home {% endblock page_title %}
+
+{% block main_content %}
+<div class="container-fluid">
+
+    <div class="row" id="notif-row" style="display:none;">
+        <div class="col-12 mb-3">
+            <div class="alert alert-info shadow-sm d-flex flex-column flex-md-row align-items-center justify-content-between">
+                <div class="mb-2 mb-md-0 text-center text-md-start">
+                    <i class="fas fa-bell me-2"></i>
+                    <strong>Notifications :</strong> Souhaitez-vous recevoir vos alertes en temps réel ?
+                </div>
+                <button type="button" class="btn btn-primary btn-sm px-4 w-100 w-md-auto" id="btn-enable-notifications">
+                    Activer maintenant
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-primary h-100 mb-0">
+                <div class="inner">
+                    <h3>{{ attendance_total }}</h3>
+                    <p class="mb-0">Total attendances</p>
+                </div>
+                <div class="icon"><i class="bi bi-calendar-check"></i></div>
+                <a href="{% url 'student_view_attendance' %}" class="small-box-footer">Plus d'info <i class="bi bi-arrow-right-circle"></i></a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-success h-100 mb-0">
+                <div class="inner">
+                    <h3>{{ attendance_absent }}<sup class="fs-5">%</sup></h3>
+                    <p class="mb-0">Absent</p>
+                </div>
+                <div class="icon"><i class="bi bi-person-x"></i></div>
+                <a href="{% url 'student_view_attendance' %}" class="small-box-footer">Plus d'info <i class="bi bi-arrow-right-circle"></i></a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-warning h-100 mb-0">
+                <div class="inner">
+                    <h3>{{ attendance_present }}</h3>
+                    <p class="mb-0">Présent</p>
+                </div>
+                <div class="icon"><i class="bi bi-person-check"></i></div>
+                <a href="{% url 'student_view_attendance' %}" class="small-box-footer">Plus d'info <i class="bi bi-arrow-right-circle"></i></a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-danger h-100 mb-0">
+                <div class="inner">
+                    <h3>{{ subject }}</h3>
+                    <p class="mb-0">Matières</p>
+                </div>
+                <div class="icon"><i class="bi bi-book"></i></div>
+                <a href="{% url 'student_view_attendance' %}" class="small-box-footer">Plus d'info <i class="bi bi-arrow-right-circle"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 g-3">
+        <div class="col-lg-6 col-12">
+            <div class="card h-100">
+                <div class="card-header border-0"><h3 class="card-title">Attendance Chart</h3></div>
+                <div class="card-body">
+                    <div style="position: relative; height:300px; width: 100%;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-12">
+            <div class="card h-100">
+                <div class="card-header border-0"><h3 class="card-title">Attendance Statistic</h3></div>
+                <div class="card-body">
+                    <div style="position: relative; height:300px; width: 100%;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+
+{% block custom_js %}
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+
+<script>
+$(document).ready(function(){
+    // --- INITIALISATION CHARTS ---
+    var subjects = {{ data_name|safe }};
+    var data1 = {{ data1|safe }};
+    var data2 = {{ data2|safe }};
+
+    function initializeCharts() {
+        if ($('#pieChart').length && typeof Chart !== 'undefined') {
+            new Chart($('#pieChart').get(0).getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['ABSENT', 'PRESENT', 'TOTAL'],
+                    datasets: [{
+                        data: [{{ attendance_absent }}, {{ attendance_present }}, {{ attendance_total }}],
+                        backgroundColor: ['#f56954', '#00a65a', '#ffc107'],
+                    }]
+                },
+                options: { maintainAspectRatio: false, responsive: true }
+            });
+        }
+
+        if ($('#barChart').length && typeof Chart !== 'undefined') {
+            new Chart($('#barChart').get(0).getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: subjects,
+                    datasets: [
+                        { label: 'Présent', backgroundColor: '#00a65a', data: data1 },
+                        { label: 'Absent', backgroundColor: '#f56954', data: data2 }
+                    ]
+                },
+                options: { maintainAspectRatio: false, responsive: true }
+            });
+        }
+    }
+    initializeCharts();
+
+    // --- FIREBASE CONFIG ---
+    var firebaseConfig = {
+        apiKey: "AIzaSy0TCAvVtdI2MuxkfqdoZP3ZvWOo0H9s",
+        authDomain: "studentmanagementsystem-8ad4b.firebaseapp.com",
+        projectId: "studentmanagementsystem-8ad4b",
+        messagingSenderId: "399490981211",
+        appId: "1:399490981211:web:4e23efdc7e0b33bc5aebc0"
+    };
+
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+
+        // Affichage de la bannière
+        if (Notification.permission === "default") {
+            $('#notif-row').fadeIn();
+        } else if (Notification.permission === "granted") {
+            InitializeFirebaseMessaging(false);
+        }
+
+        $('#btn-enable-notifications').on('click', function() {
+            InitializeFirebaseMessaging(true);
+            $('#notif-row').slideUp();
+        });
+
+        function InitializeFirebaseMessaging(isUserGesture) {
+            if (isUserGesture) {
+                messaging.requestPermission()
+                    .then(() => messaging.getToken())
+                    .then(handleToken)
+                    .catch(err => console.log("Erreur:", err));
+            } else {
+                messaging.getToken().then(handleToken).catch(() => {});
+            }
+        }
+
+        function handleToken(token) {
+            if (token) {
+                $.post('{% url "student_fcmtoken_save" %}', {
+                    token: token,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                });
+            }
+        }
+
+        messaging.onMessage((payload) => {
+            if (Notification.permission === "granted" && payload.notification) {
+                new Notification(payload.notification.title, {
+                    body: payload.notification.body,
+                    icon: '{% static "dist/img/user2-160x160.jpg" %}'
+                });
+            }
+        });
+    }
+});
+</script>
+
+<style>
+    /* Correction spécifique pour mobile */
+    @media (max-width: 576px) {
+        .small-box h3 { font-size: 1.1rem; }
+        .small-box p { font-size: 0.75rem; }
+        .small-box .icon { display: none; } /* On cache l'icône sur mobile pour gagner de la place */
+        .app-content-header h1 { font-size: 1.2rem; }
+    }
+</style>
+{% endblock custom_js %}

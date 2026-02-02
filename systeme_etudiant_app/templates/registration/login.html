@@ -1,10 +1,39 @@
-<!DOCTYPE html>
+<!-- templates/registration/login.html -->
+{% load static %}
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Système de Gestion Étudiants</title>
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.css' %}">
 </head>
-<body>
-$END$
+<body class="login-page bg-body-secondary">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="#"><b>Système de gestion Étudiant</b></a>
+        </div>
+        <div class="card">
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">Se connecter au système de gestion des étudiants</p>
+                <form action="{% url 'do_login' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Nom d'utilisateur" name="username" required>
+                        <div class="input-group-text"><span class="bi bi-person"></span></div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Mot de passe" name="password" required>
+                        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

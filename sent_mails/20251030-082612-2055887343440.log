@@ -1,0 +1,25 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Password reset on 127.0.0.1:8000
+From: webmaster@localhost
+To: diattas994@gmail.com
+Date: Thu, 30 Oct 2025 08:26:12 -0000
+Message-ID: <176181277223.19740.9127767970233289879@SIDYMOHAMEDDIATTA.lan>
+
+
+You're receiving this email because you requested a password reset for your user account at 127.0.0.1:8000.
+
+Please go to the following page and choose a new password:
+
+http://127.0.0.1:8000/accounts/reset/MQ/cyh8ro-afec1b1c85296b74ade8b2672db39076/
+
+In case you’ve forgotten, you are: Sidy
+
+Thanks for using our site!
+
+The 127.0.0.1:8000 team
+
+
+
+-------------------------------------------------------------------------------

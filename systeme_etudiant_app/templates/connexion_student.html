@@ -1,11 +1,10 @@
 {% load static %}
-<!doctype html>
-<html lang="en">
+
+<html lang="fr">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title> Gestion Etudiants | Login Page</title>
-
+    <title>Gestion Étudiants | Création de compte</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Fonts -->
@@ -31,13 +30,34 @@
             <a href="#"><b>Gestion Étudiants</b></a>
         </div>
 
-         <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+                <h4 class="mb-0">Création Compte Étudiant(e)</h4>
+            </div>
             <div class="card-body login-card-body">
+                <form action="{% url 'do_creer_compte_student' %}" method="POST" enctype="multipart/form-data" id="signupForm">
+                    {% csrf_token %}
 
-                <p class="login-box-msg">Se connecter au système</p>
+                    <!-- Informations personnelles -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Prénom" name="first_name" required>
+                                <div class="input-group-text"><span class="bi bi-person"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Nom" name="last_name" required>
+                                <div class="input-group-text"><span class="bi bi-person"></span></div>
+                            </div>
+                        </div>
+                    </div>
 
-                <form action="{% url 'do_login' %}" method="POST">
-                  {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Nom d'utilisateur" name="username" required>
+                        <div class="input-group-text"><span class="bi bi-person-badge"></span></div>
+                    </div>
 
                     <div class="input-group mb-3">
                         <input type="email" class="form-control" placeholder="Email" name="email" required>
@@ -45,29 +65,87 @@
                     </div>
 
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" placeholder="Password" name="password" required>
+                        <input type="text" class="form-control" placeholder="Adresse" name="address" required>
+                        <div class="input-group-text"><span class="bi bi-geo-alt"></span></div>
+                    </div>
+
+                    <!-- Informations académiques -->
+                    <div class="form-group mb-3">
+                        <label class="form-label">Filière</label>
+                        <select class="form-control" name="course" required>
+                            <option value="">Sélectionnez une filière</option>
+                            {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.course_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Année scolaire</label>
+                        <select class="form-control" name="session_year" required>
+                            <option value="">Sélectionnez une année</option>
+                            {% for session_year in session_years %}
+                            <option value="{{ session_year.id }}">
+                                {{ session_year.session_start_year }} - {{ session_year.session_end_year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Genre</label>
+                        <select class="form-control" name="sex" required>
+                            <option value="">Sélectionnez</option>
+                            <option value="Male">Masculin</option>
+                            <option value="Female">Féminin</option>
+                        </select>
+                    </div>
+
+                    <!-- Mot de passe -->
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Mot de passe" name="password" id="password" required minlength="8">
                         <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
                     </div>
-                    <div class="mb-3">
-                        <div class="g-recaptcha" data-sitekey="6LfTFCMsAAAAAHxH2V_7-SlBzKqm06UgjhxMcAXF"></div>
 
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Confirmer le mot de passe" name="confirm_password" id="confirm_password" required>
+                        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+                        <div class="invalid-feedback">Les mots de passe ne correspondent pas</div>
                     </div>
 
+                    <!-- Photo de profil -->
+                    <div class="form-group mb-3">
+                        <label class="form-label">Photo de profil</label>
+                        <input type="file" class="form-control" name="profile_pic" accept="image/*">
+                        <small class="form-text text-muted">Formats acceptés: JPG, PNG, GIF. Taille max: 5MB</small>
+                    </div>
+
+                    <!-- reCAPTCHA -->
+                    <div class="mb-3">
+                        <div class="g-recaptcha" data-sitekey="6LfTFCMsAAAAAHxH2V_7-SlBzKqm06UgjhxMcAXF"></div>
+                    </div>
+
+                    <!-- Bouton de soumission -->
                     <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-success bg-gradient">Se connecter</button>
+                        <button type="submit" class="btn btn-success bg-gradient">
+                            <i class="bi bi-person-plus"></i> Créer le compte
+                        </button>
+                    </div>
+
+                    <!-- Lien vers connexion -->
+                    <div class="text-center mb-3">
+                        <p>Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></p>
                     </div>
                 </form>
 
-                <div class="text-center mb-3">
-                    <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
-                </div>
-
+                <!-- Messages d'erreur -->
                 {% if messages %}
                 <div class="mt-3">
                     {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div class="alert alert-danger">{{ message }}</div>
-                    {% endif %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -83,8 +161,42 @@
     <script src="{% static 'dist/js/adminlte.js' %}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+    <!-- Validation JavaScript -->
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
 
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                confirmPassword.classList.add('is-invalid');
+                confirmPassword.focus();
+                return false;
+            }
+
+            // Vérification reCAPTCHA
+            const recaptcha = grecaptcha.getResponse();
+            if (recaptcha.length === 0) {
+                e.preventDefault();
+                alert('Veuillez compléter le reCAPTCHA');
+                return false;
+            }
+        });
+
+        // Validation en temps réel des mots de passe
+        document.getElementById('confirm_password').addEventListener('input', function() {
+            const password = document.getElementById('password');
+            const confirmPassword = this;
+
+            if (password.value === confirmPassword.value) {
+                confirmPassword.classList.remove('is-invalid');
+                confirmPassword.classList.add('is-valid');
+            } else {
+                confirmPassword.classList.remove('is-valid');
+                confirmPassword.classList.add('is-invalid');
+            }
+        });
+    </script>
 
 </body>
-
 </html>
