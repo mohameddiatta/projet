@@ -1,0 +1,13 @@
+# Environnements Python
+mon_env/
+
+# Fichiers compilés Python
+*.pyc
+__pycache__/
+
+# Fichiers sensibles / secrets
+*.json       # ex: Firebase keys
+*.db         # fichiers de base de données locales
+
+# Dossiers médias
+media/

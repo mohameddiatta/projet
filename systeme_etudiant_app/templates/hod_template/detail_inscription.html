@@ -1,0 +1,217 @@
+<!-- templates/hod_template/detail_inscription.html -->
+{% extends 'hod_template/base_template.html' %}
+{% load static %}
+
+{% block page_title %}
+Détails de l'inscription
+{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Bouton retour -->
+            <div class="mb-3">
+                <a href="{% url 'student_validated_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+
+            <!-- Carte principale -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-file-invoice"></i> Détails de l'inscription #{{ inscription.id }}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <!-- Informations étudiant -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-user-graduate"></i> Informations étudiant</h5>
+                            <hr>
+                            <p><strong>Nom complet :</strong> {{ inscription.students.admin.get_full_name }}</p>
+                            <p><strong>Email :</strong> {{ inscription.students.admin.email }}</p>
+                            <p><strong>Téléphone :</strong>
+                                {% with inscription.students.address|extract_telephone as tel %}
+                                    {{ tel|default:"-" }}
+                                {% endwith %}
+                            </p>
+                            <p><strong>INE :</strong>
+                                {% with inscription.students.address|extract_ine as ine %}
+                                    {{ ine|default:"-" }}
+                                {% endwith %}
+                            </p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-graduation-cap"></i> Informations académiques</h5>
+                            <hr>
+                            <p><strong>Filière :</strong> {{ inscription.filiere.get_Nom_filiere_display }}</p>
+                            <p><strong>Niveau :</strong> {{ inscription.niveau.nom_niveau }}</p>
+                            <p><strong>Date inscription :</strong> {{ inscription.date_inscription|date:"d/m/Y H:i" }}</p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-money-bill-wave"></i> Informations financières</h5>
+                            <hr>
+                            <p><strong>Montant total :</strong> <span class="badge bg-info">{{ inscription.montant_total|floatformat:0 }} FCFA</span></p>
+                            <p><strong>Total payé :</strong> <span class="badge bg-success">{{ total_paye|floatformat:0 }} FCFA</span></p>
+                            <p><strong>Reste à payer :</strong> <span class="badge bg-warning">{{ reste_a_payer|floatformat:0 }} FCFA</span></p>
+
+                            <!-- Barre de progression -->
+                            <div class="progress mt-3" style="height: 20px;">
+                                <div class="progress-bar
+                                    {% if pourcentage_paye >= 100 %}bg-success
+                                    {% elif pourcentage_paye >= 50 %}bg-warning
+                                    {% else %}bg-danger{% endif %}"
+                                    role="progressbar"
+                                    style="width: {{ pourcentage_paye }}%;"
+                                    aria-valuenow="{{ pourcentage_paye }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100">
+                                    {{ pourcentage_paye|floatformat:1 }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diplôme -->
+                    {% if inscription.diplome %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5><i class="fas fa-file-pdf"></i> Diplôme</h5>
+                            <hr>
+                            <a href="{{ inscription.diplome.url }}" target="_blank" class="btn btn-info">
+                                <i class="fas fa-download"></i> Télécharger le diplôme
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Historique des paiements -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5><i class="fas fa-history"></i> Historique des paiements</h5>
+                            <hr>
+
+                            {% if paiements %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Date</th>
+                                            <th>Montant</th>
+                                            <th>Méthode</th>
+                                            <th>Transaction</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for paiement in paiements %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ paiement.date_paiement|date:"d/m/Y H:i" }}</td>
+                                            <td>{{ paiement.montant|floatformat:0 }} FCFA</td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ paiement.methode }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <code>{{ paiement.numero_transaction|default:"-" }}</code>
+                                            </td>
+                                            <td>
+                                                {% if paiement.statut|lower in ['valide', 'payé', 'validé'] %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> {{ paiement.statut }}
+                                                </span>
+                                                {% elif paiement.statut|lower in ['refusé', 'refuse'] %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times"></i> {{ paiement.statut }}
+                                                </span>
+                                                {% else %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock"></i> {{ paiement.statut }}
+                                                </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if paiement.statut|lower in ['en_attente', 'pending'] %}
+                                                <div class="btn-group btn-group-sm">
+                                                    <form method="POST" action="{% url 'valider_paiement' paiement.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-danger btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#refuserModal{{ paiement.id }}">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Aucun paiement enregistré pour cette inscription.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            Inscription créée le {{ inscription.created_at|date:"d/m/Y" }}
+                            | Dernière mise à jour : {% now "H:i" %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals pour refuser les paiements -->
+{% for paiement in paiements %}
+{% if paiement.statut|lower in ['en_attente', 'pending'] %}
+<div class="modal fade" id="refuserModal{{ paiement.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Refuser le paiement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'refuser_paiement' paiement.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Refuser le paiement de <strong>{{ paiement.montant }} FCFA</strong> ?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Raison du refus :</label>
+                        <textarea name="raison_refus" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Confirmer le refus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% endblock %}

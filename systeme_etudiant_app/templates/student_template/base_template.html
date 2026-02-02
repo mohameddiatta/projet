@@ -1,0 +1,133 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Student Management System | Staff Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AdminLTE Dashboard basé sur Bootstrap 5" />
+
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" />
+
+  <!-- OverlayScrollbars -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" />
+
+  <!-- AdminLTE -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.css' %}">
+
+  <!-- Apexcharts + JSVectormap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+  <!-- Fix scroll overflow -->
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+  </style>
+
+  {% block custom_css %}
+  {% endblock custom_css %}
+</head>
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+  <div class="app-wrapper">
+    <!-- Header -->
+    <nav class="app-header navbar navbar-expand bg-body">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <!-- 🔧 Le bouton menu toggle ne redirige plus vers /logout_user -->
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+              <i class="bi bi-list"></i>
+            </a>
+          </li>
+        </ul>
+    
+        <h3 class="m-0 text-truncate" style="max-width: 70vw;">
+          Student Management System | Staff
+        </h3>
+    
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <!-- ✅ Seul ce lien déconnecte -->
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    
+
+    <!-- Sidebar -->
+    {% include 'staff_template/sidebar_template.html' with user=user id=id %}
+
+    <!-- Main content -->
+    <div class="app-main">
+      <!-- Page title & Breadcrumb -->
+      <section class="app-content-header py-3">
+        <div class="container-fluid">
+          <div class="row mb-1">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h1 class="m-0 text-dark">{% block page_title %}{% endblock page_title %}</h1>
+              <div>
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item"><a href="{% url 'admin_home' %}">Home</a></li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    
+
+      <!-- Page content -->
+      <section class="app-content">
+        <div class="container-fluid">
+          {% block main_content %}
+          {% endblock main_content %}
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    {% include 'staff_template/footer.html' %}
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+  <script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebarWrapper = document.querySelector('.sidebar-wrapper');
+      if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
+        OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+          scrollbars: {
+            theme: 'os-theme-light',
+            autoHide: 'leave',
+            clickScroll: true,
+          },
+        });
+      }
+    });
+  </script>
+
+  <!-- Plugins: Apexcharts, jsvectormap, etc. -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js" crossorigin="anonymous"></script>
+
+  {% block custom_js %}
+  {% endblock custom_js %}
+</body>
+</html>

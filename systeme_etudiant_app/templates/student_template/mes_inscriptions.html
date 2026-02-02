@@ -1,0 +1,75 @@
+{% extends 'student_template/base_template.html' %}
+
+{% block page_title %}Mes Inscriptions{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Mes Inscriptions</h3>
+                </div>
+                <div class="card-body">
+                    {% if inscriptions %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Filière</th>
+                                    <th>Niveau</th>
+                                    <th>Date d'inscription</th>
+                                    <th>Montant total</th>
+                                    <th>Montant payé</th>
+                                    <th>Reste à payer</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inscription in inscriptions %}
+                                <tr>
+                                    <td>{{ inscription.filiere.get_Nom_filiere_display }}</td>
+                                    <td>{{ inscription.niveau.nom_niveau }}</td>
+                                    <td>{{ inscription.date_inscription|date:"d/m/Y" }}</td>
+                                    <td>{{ inscription.montant_total }} FCFA</td>
+                                    <td>{{ inscription.montant_valide }} FCFA</td>
+                                    <td>{{ inscription.reste_a_payer }} FCFA</td>
+                                    <td>
+                                        {% if inscription.reste_a_payer <= 0 %}
+                                            <span class="badge bg-success">Payée</span>
+                                        {% elif inscription.montant_valide > 0 %}
+                                            <span class="badge bg-warning">Partiel</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">À payer</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if inscription.reste_a_payer > 0 %}
+                                            <a href="{% url 'payer_inscription_detail' inscription.id %}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fas fa-credit-card"></i> Payer
+                                            </a>
+                                        {% endif %}
+                                        <a href="#" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Voir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Vous n'avez pas encore d'inscription.
+                        <a href="{% url 'inscription' %}" class="alert-link">S'inscrire maintenant</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'student_template/base_template.html' %}
+
+{% block page_title %}Paiement Inscription{% endblock %}
+
+{% block main_content %}
+<div class="container mt-4">
+    <h3>Paiement de l'inscription</h3>
+    <p>Inscription de : {{ inscription.students.admin.get_full_name }}</p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="methode">Méthode de paiement</label>
+            <select class="form-control" id="methode" name="methode" required>
+                <option value="">-- Sélectionner une méthode --</option>
+                {% for code, label in methodes %}
+                <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="montant">Montant (FCFA)</label>
+            <input type="number" step="0.01" class="form-control" name="montant" id="montant" required>
+        </div>
+        <button type="submit" class="btn btn-success">Payer</button>
+    </form>
+</div>
+{% endblock %}

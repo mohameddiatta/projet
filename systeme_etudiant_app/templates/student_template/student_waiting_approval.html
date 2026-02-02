@@ -1,0 +1,68 @@
+<!-- student_template/waiting_approval.html -->
+{% extends 'student_template/base_template.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header {% if student.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                    <h4 class="card-title mb-0">
+                        {% if student.status == 'pending' %}
+                            <i class="fas fa-clock"></i> En attente d'approbation
+                        {% else %}
+                            <i class="fas fa-times-circle"></i> Compte rejeté
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body text-center py-5">
+                    {% if student.status == 'pending' %}
+                        <div class="mb-4">
+                            <i class="fas fa-user-clock fa-5x text-warning"></i>
+                        </div>
+                        <h3 class="text-warning">Votre compte est en cours de validation</h3>
+                        <p class="lead">
+                            L'administration vérifie actuellement vos informations.
+                        </p>
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Que se passe-t-il ?</h5>
+                            <ul class="text-start">
+                                <li>Votre inscription a bien été enregistrée</li>
+                                <li>L'administration vérifie vos documents</li>
+                                <li>Vous recevrez un email de confirmation une fois approuvé</li>
+                                <li>Le délai de traitement est généralement de 24 à 48h</li>
+                            </ul>
+                        </div>
+
+                    {% elif student.status == 'rejected' %}
+                        <div class="mb-4">
+                            <i class="fas fa-times-circle fa-5x text-danger"></i>
+                        </div>
+                        <h3 class="text-danger">Votre compte a été rejeté</h3>
+
+                        {% if student.rejection_reason %}
+                        <div class="alert alert-danger mt-3">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Raison du rejet :</h5>
+                            <p class="mb-0">{{ student.rejection_reason }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <p>Si vous pensez qu'il s'agit d'une erreur, contactez l'administration :</p>
+                            <a href="mailto:admin@votre-ecole.com" class="btn btn-primary">
+                                <i class="fas fa-envelope"></i> Contacter l'admin
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-5">
+                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

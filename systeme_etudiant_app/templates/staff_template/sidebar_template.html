@@ -1,0 +1,200 @@
+{% load static %}
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+  <!--begin::Sidebar Brand-->
+  <div class="sidebar-brand">
+    <!--begin::Brand Link-->
+    <a href="./index.html" class="brand-link">
+      <!--begin::Brand Image-->
+      <img
+        src="{% static 'dist/assets/img/AdminLTELogo.png' %}"
+        alt="AdminLTE Logo"
+        class="brand-image opacity-75 shadow"
+      >
+      <!--end::Brand Image-->
+      <!--begin::Brand Text-->
+      <span class="brand-text fw-light">AdminLTE 4</span>
+      <!--end::Brand Text-->
+    </a>
+    <!--end::Brand Link-->
+  </div>
+  <!--end::Sidebar Brand-->
+  <!--begin::Sidebar Wrapper-->
+  <div class="sidebar-wrapper">
+    <nav class="mt-2">
+      <!--begin::Sidebar Menu-->
+      <ul
+        class="nav sidebar-menu flex-column"
+        data-lte-toggle="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        <li class="nav-item menu-open">
+          {% url 'add_staff' as add_staff %}
+          <a href="{{ add_staff }}" class="nav-link {% if request.path == add_staff %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Add Staff
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'manage_staff' as manage_staff %}
+          {% url 'edit_staff' staff_id=id as edit_staff %}
+          <a href="{% url 'manage_staff' %}" class="nav-link {% if request.path == edit_staff %} active {% endif %} {% if request.path == manage_staff %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Manage Staff
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'add_student' as add_student %}
+          <a href="{% url 'add_student' %}" class="nav-link {% if request.path == add_student %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Add Student
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'manage_student' as manage_student %}
+          {% url 'edit_student' student_id=id as edit_student %}
+          <a href="{% url 'manage_student' %}" class="nav-link {% if request.path == manage_student %} active {% endif %} {% if request.path == edit_student %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Manage Student
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'add_courses' as add_courses %}
+          <a href="{% url 'add_courses' %}" class="nav-link {% if request.path == add_courses %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Add Course
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'manage_courses' as manage_courses %}
+          {% url 'edit_courses' courses_id=id as edit_courses %}
+          <a href="{% url 'manage_courses' %}" class="nav-link {% if request.path == manage_courses %} active {% endif %} {% if request.path == edit_courses %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Manage Course
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'add_subject' as add_subject %}
+          <a href="{% url 'add_subject' %}" class="nav-link {% if request.path == add_subject %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Add Subject
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          {% url 'manage_subject' as manage_subject %}
+          {% url 'edit_subject' subject_id=id as edit_subject %}
+          <a href="{% url 'manage_subject' %}" class="nav-link {% if request.path == manage_subject %} active {% endif %} {% if request.path == edit_subject %} active {% endif %}">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Manage Subject
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          <a href="/add_document" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Document 
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          <a href="/add_inscrire" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              S'inscrire 
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          <a href="/add_views_attendance" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Views Attendance 
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+
+        <li class="nav-item menu-open">
+          <a href="/add_feedback" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Student Feedback 
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          <a href="/add_staff_feedback" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+               Staff Feedback
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          <a href="/add_student_leave" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Student Leave
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+        <li class="nav-item menu-open">
+          <a href="/add_staff_leave" class="nav-link active">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p>
+              Staff Leave
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          
+          </a>
+        </li>
+
+      </ul>
+      <!--end::Sidebar Menu-->
+    </nav>
+  </div>
+  <!--end::Sidebar Wrapper-->
+</aside>

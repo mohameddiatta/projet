@@ -1,0 +1,52 @@
+{% extends 'student_template/base_template.html' %}
+
+{% block page_title %}
+Attendance Data
+{% endblock page_title %}
+
+{% block main_content %}
+<section class="content">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <!--begin::Quick Example-->
+        <div class="card card-primary card-outline mb-4">
+          <!--begin::Header-->
+          <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+            <div class="card-title">View Attendance</div>
+          </div>
+          <!--end::Header-->
+
+          <!--begin::Body-->
+          <div class="card-body">
+            <div class="row">
+              {% if attendance_reports %}
+                {% for attendance_report in attendance_reports %}
+                  <div class="col-lg-3 col-md-4 col-sm-6 mb-3 attendance_div">
+                    <div class="border rounded p-2 shadow-sm text-center">
+                      <b>Date :</b> {{ attendance_report.attendance_id.attendance_date }}<br>
+                      {% if attendance_report.status %}
+                        <span class="badge bg-success">Present</span>
+                      {% else %}
+                        <span class="badge bg-danger">Absent</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="col-12 text-center text-muted">
+                  <p>No attendance records found for this period.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <!--end::Body-->
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock main_content %}

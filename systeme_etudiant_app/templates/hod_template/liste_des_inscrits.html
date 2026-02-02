@@ -1,0 +1,90 @@
+{% extends 'hod_template/base_template.html' %}
+{% block page_title %}
+Liste des étudiants inscrits
+{% endblock page_title %}
+{% block main_content %}
+
+<!--begin::App Content Header-->
+<!--end::App Content Header-->
+<!--begin::App Content-->
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+   <main id="main" class="main">
+
+    <div class="pagetitle">
+
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+
+          <div class="card-header text-white" style="background: linear-gradient(45deg, #11998e, #38ef7d);">
+            <div class="card-body">
+
+              <!-- Table with stripped rows -->
+       <div class="table-responsive">
+  <table class="table datatable" style="width:100%; table-layout:auto;">
+                <thead>
+                <h5>Student Details</h5>
+                  <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Gender</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Ine</th>
+                    <th>Telephone</th>
+                    <th>Montant</th>
+                    <th>Date paiement</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for student in students %}
+                  <tr>
+                    <td>{{ student.admin.id }}</td>
+                    <td>{{ student.admin.first_name }}</td>
+                    <td>{{ student.admin.last_name }}</td>
+                    <td>{{ student.admin.email }}</td>
+                    <td>{{ student.address }}</td>
+                    <td>{{ student.admin.ine }}</td>
+                    <td>{{ student.admin.telephone }}</td>
+                    <td>{{ student.montant }}</td>
+                    <td><img src="{{ student.profile_pic }}" style="width:50px; height:50px;" /></td>
+                    <td>{{ student.admin.date_paiement|date:"d/m/Y H:i" }}</td>
+                    <td><a href="{% url 'edit_student' student_id=student.admin.id %}" class="btn btn-success btn-sm">Edit</a></td>
+
+
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    </section>
+
+  </main><!-- End #main -->
+
+
+
+
+
+</div>
+    </div>
+<!--end::App Content-->
+{% endblock main_content %}
+
+td a {
+    display: inline-block;
+    margin-right: 5px;
+}

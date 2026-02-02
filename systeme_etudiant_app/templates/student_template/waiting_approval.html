@@ -1,0 +1,114 @@
+<!-- templates/student_template/waiting_approval.html -->
+{% extends 'student_template/base_template.html' %}
+
+{% block page_title %}
+En attente d'approbation
+{% endblock page_title %}
+
+{% block main_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <!-- En-tête -->
+                <div class="card-header bg-warning text-dark text-center py-4">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="rounded-circle bg-white p-3">
+                            <i class="bi bi-clock-history display-4 text-warning"></i>
+                        </div>
+                    </div>
+                    <h2 class="mb-0">En attente d'approbation</h2>
+                </div>
+
+                <!-- Corps -->
+                <div class="card-body text-center py-5">
+                    {% if student_status == 'pending' %}
+                    <!-- Cas : En attente -->
+                    <div class="mb-4">
+                        <i class="bi bi-hourglass-split display-1 text-warning mb-3"></i>
+                        <h3 class="text-dark">Votre compte est en cours de validation</h3>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p class="mb-0">
+                            <strong>🕒 Statut :</strong> En attente de validation par l'administration
+                        </p>
+                    </div>
+
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Prochaines étapes :</h5>
+                            <ul class="text-start">
+                                <li>Votre dossier est en cours d'examen par l'administration</li>
+                                <li>Vous recevrez une notification par email dès que votre compte sera approuvé</li>
+                                <li>Une fois approuvé, vous pourrez vous inscrire aux formations</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-4">
+                        <small>
+                            <i class="bi bi-info-circle"></i>
+                            Ce processus peut prendre 24 à 48 heures.
+                            Merci de votre patience.
+                        </small>
+                    </p>
+
+                    {% elif student_status == 'rejected' %}
+                    <!-- Cas : Rejeté -->
+                    <div class="mb-4">
+                        <i class="bi bi-x-circle display-1 text-danger mb-3"></i>
+                        <h3 class="text-dark">Compte non approuvé</h3>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Votre compte a été rejeté</h5>
+                        {% if rejection_reason %}
+                        <div class="mt-3">
+                            <strong>Raison :</strong>
+                            <p class="mb-0 mt-2 p-3 bg-white rounded border">
+                                {{ rejection_reason }}
+                            </p>
+                        </div>
+                        {% else %}
+                        <p class="mb-0">Aucune raison spécifique fournie.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Que faire maintenant ?</h5>
+                            <ul class="text-start">
+                                <li>Contactez l'administration pour plus d'informations</li>
+                                <li>Corrigez les problèmes mentionnés ci-dessus</li>
+                                <li>Vous pouvez créer un nouveau compte avec des informations correctes</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="mt-5">
+                        <a href="{% url 'student_home' %}" class="btn btn-primary">
+                            <i class="bi bi-house-door"></i> Retour à l'accueil
+                        </a>
+
+                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="bi bi-box-arrow-right"></i> Déconnexion
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pied de page -->
+                <div class="card-footer text-center bg-light py-3">
+                    <small class="text-muted">
+                        <i class="bi bi-telephone"></i> Contactez-nous si nécessaire :
+                        <a href="mailto:admin@votre-ecole.com">admin@votre-ecole.com</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
