@@ -1,12 +1,15 @@
-import firebase_admin
-from firebase_admin import credentials, messaging
 import os
+import firebase_admin
+from firebase_admin import credentials
+from django.conf import settings
 
-# Chemin absolu vers le JSON depuis la racine du projet
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-firebase_json_path = os.path.join(BASE_DIR, 'systeme-gestion-etudiant-firebase-adminsdk-fbsvc-cc59976998.json')
+# On utilise le BASE_DIR officiel défini dans ton fichier settings.py
+# Normalement, c'est C:\Users\HP\Desktop\PROJET
+path_to_json = os.path.join(settings.BASE_DIR, 'systeme-gestion-etudiant-firebase-adminsdk-fbsvc-cc59976998.json')
 
-# Initialiser Firebase si ce n'est pas déjà fait
 if not firebase_admin._apps:
-    cred = credentials.Certificate(firebase_json_path)
-    firebase_admin.initialize_app(cred)
+    if os.path.exists(path_to_json):
+        cred = credentials.Certificate(path_to_json)
+        firebase_admin.initialize_app(cred)
+    else:
+        print(f"\n ATTENTION : Fichier manquant à cet endroit précis : {path_to_json}")

@@ -477,7 +477,7 @@ def inscription(request):
     # =====================================================
     # 📦 CONTEXTE TEMPLATE
     # =====================================================
-    context = {
+    context ={
         "filieres": Filiere.objects.all(),
         "niveaux": Niveau.objects.all(),
         "profile_complete": profile_complete,

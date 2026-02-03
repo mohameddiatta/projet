@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9de0a06c-eddc-485c-b516-d7b6b6519dcd" name="Changes" comment="" />
+    <list default="true" id="9de0a06c-eddc-485c-b516-d7b6b6519dcd" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/systeme_etudiant_app/firebase_init.py" beforeDir="false" afterPath="$PROJECT_DIR$/systeme_etudiant_app/firebase_init.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/systeme_etudiant_app/studentViews.py" beforeDir="false" afterPath="$PROJECT_DIR$/systeme_etudiant_app/studentViews.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,7 +47,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/Desktop/PROJET/systeme_etudiant_app/templates/student_template&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/Desktop/PROJET&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.project&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -123,11 +127,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/systeme_etudiant_app/HodViews.py</url>
-          <line>939</line>
-          <option name="timeStamp" value="29" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/manage.py</url>
           <line>2</line>
