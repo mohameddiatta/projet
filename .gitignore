@@ -1,13 +1,17 @@
 # Environnements Python
 mon_env/
 
-# Fichiers compilés Python
+# Fichiers compilï¿½s Python
 *.pyc
 __pycache__/
 
 # Fichiers sensibles / secrets
 *.json       # ex: Firebase keys
-*.db         # fichiers de base de données locales
+*.db         # fichiers de base de donnï¿½es locales
 
-# Dossiers médias
+# Dossiers mï¿½dias
 media/
+
+# IDE
+.idea/
+
